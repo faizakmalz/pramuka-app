@@ -73,6 +73,9 @@
                 height: 550,
                 selectable: true,
                 events: '/events',
+                eventColor: '#610A08',
+                eventTextColor: '#FDE8E7',
+                eventDisplay: 'block',
                 select: function(info) {
                     startInput.value = info.startStr;
                     endInput.value = info.endStr;

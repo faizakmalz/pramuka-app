@@ -5,46 +5,59 @@
         </h2>
     </x-slot>
     <div class="flex flex-col gap-4">
-        <div class="pt-12">
+        <div class="pt-12">            
             <div class="flex flex-col gap-4 mx-auto sm:px-6 lg:px-8">
                 <div class="flex flex-col gap-4">
                     <h1 class="font-bold text-[24px] pl-2">Dashboard SIMP</h1>
-                    <div class="bg-gradient-to-r from-[#610A08] to-[#A44D47] text-white rounded-2xl shadow-lg p-6 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 opacity-20">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 200 200" class="w-32 h-32">
-                                <circle cx="100" cy="100" r="90" stroke="white" stroke-width="10"/>
-                            </svg>
-                        </div>
+                    {{-- === Rekomendasi Kegiatan Hari Ini === --}}
+                    <div class="relative bg-gradient-to-br from-[#7D2A26] via-[#8B3A2A] to-[#B45B3E] text-white rounded-2xl shadow-md overflow-hidden">
+                        {{-- Overlay Pattern --}}
+                        <div class="absolute inset-0 opacity-10 bg-[url('https://www.toptal.com/designers/subtlepatterns/uploads/patternpad.png')]"></div>
 
-                        <div class="flex flex-col gap-3 relative z-10">
+                        <div class="p-6 relative z-10 flex flex-col gap-3">
                             <h3 class="text-lg font-bold uppercase tracking-wide">Rekomendasi Kegiatan Hari Ini</h3>
                             <p class="text-sm text-gray-100 leading-relaxed">
                                 Untuk menjaga semangat pramuka, berikut kegiatan yang bisa dilakukan hari ini:
                             </p>
 
-                            <ul class="mt-3 space-y-2">
+                            <ul class="mt-3 space-y-2 text-sm">
                                 <li class="flex items-center gap-2">
                                     <span class="bg-white/20 p-2 rounded-lg"><i class="fa-solid fa-person-hiking"></i></span>
-                                    <span class="font-semibold">Latihan Baris-Berbaris</span> — 30 menit pemanasan pagi.
+                                    <span><span class="font-semibold">Latihan Baris-Berbaris</span> — 30 menit pemanasan pagi.</span>
                                 </li>
                                 <li class="flex items-center gap-2">
                                     <span class="bg-white/20 p-2 rounded-lg"><i class="fa-solid fa-tree"></i></span>
-                                    <span class="font-semibold">Menanam Pohon</span> — tanam 1 pohon di lingkungan sekitar sekolah.
+                                    <span><span class="font-semibold">Menanam Pohon</span> — tanam 1 pohon di lingkungan sekitar sekolah.</span>
                                 </li>
                                 <li class="flex items-center gap-2">
                                     <span class="bg-white/20 p-2 rounded-lg"><i class="fa-solid fa-handshake-angle"></i></span>
-                                    <span class="font-semibold">Gotong Royong</span> — bantu teman membersihkan area tenda.
+                                    <span><span class="font-semibold">Gotong Royong</span> — bantu teman membersihkan area tenda.</span>
                                 </li>
                             </ul>
 
-                            <p class="mt-4 text-xs text-gray-200 italic">"Kedisiplinan dimulai dari tindakan kecil setiap hari."</p>
+                            <p class="mt-4 text-xs text-gray-200 italic">
+                                "Kedisiplinan dimulai dari tindakan kecil setiap hari."
+                            </p>
                         </div>
                     </div>
 
                     <div class="flex flex-col">
                         <h1 class="font-bold text-lg pl-2">Jumlah Anggota</h1>
                         <p class="text-sm text-gray-600 mb-1 pl-2">Berdasarkan Golongan Pramuka</p>
-                        <div id="golonganContainer" class="flex flex-wrap gap-4 w-full mb-2">
+
+                        <div id="golonganLoading" class="flex justify-center items-center py-6 text-gray-500">
+                            <div class="flex items-center gap-2">
+                                <svg class="animate-spin h-5 w-5 text-[#7D2A26]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4l-3 3 3 3H4z">
+                                    </path>
+                                </svg>
+                                <span>Memuat data golongan...</span>
+                            </div>
+                        </div>
+                        
+                        <div id="golonganContainer" class="flex flex-wrap gap-4 w-full mb-2 hidden">
                         </div>
                     </div>
                     <!-- <div class="flex flex-col gap-1">
@@ -78,10 +91,22 @@
         <div class="sm:px-6 lg:px-8 mb-10">
             <div class="bg-white overflow-hidden shadow-lg sm:rounded-lg p-6 flex flex-col">
                 <div class="mb-6 flex items-center justify-between">
-                    <h2 class="font-semibold text-xl text-gray-800 leading-tight">Data Anggota</h2>
+                    <h2 class="font-semibold text-xl w-[300px] text-gray-800 leading-tight">Data Anggota</h2>
+                    <x-primary-button class="max-w-48" onclick="window.location='{{ route('anggota') }}'"> Semua anggota </x-primary-button>
                 </div>
                <div class="custom-datatable-wrapper">
-                    <table id="guruTable" class="custom-datatable w-full text-left">
+                    <div id="anggotaLoading" class="flex justify-center items-center py-6 text-gray-500">
+                        <div class="flex items-center gap-2">
+                            <svg class="animate-spin h-5 w-5 text-[#7D2A26]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4l-3 3 3 3H4z">
+                                </path>
+                            </svg>
+                            <span>Memuat data anggota...</span>
+                        </div>
+                    </div>
+                    <table id="guruTable" class="custom-datatable w-full text-left hidden">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-4 py-2">Nomor Anggota <span class="dt-sort-icon ml-2 text-left inline-block"></span></th>
@@ -160,10 +185,28 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const guruTable = $('#guruTable').DataTable({
-                processing: true,
+            const tabelAnggota = $('#guruTable');
+            const anggotaLoading = document.getElementById('anggotaLoading');
+            const guruTable = tabelAnggota.DataTable({
                 serverSide: true,
-                ajax: '{{ url('/dashboard/anggota') }}',
+                ajax: {
+                    url: '{{ url('/dashboard/anggota') }}',
+                    dataSrc: function (json) {
+                        anggotaLoading.style.display = 'none';
+                        tabelAnggota.removeClass('hidden');
+                        return json.data;
+                    },
+                    error: function () {
+                        anggotaLoading.innerHTML = '<span class="text-red-500">Gagal memuat data anggota.</span>';
+                    }
+                },
+                language: {
+                processing: "",
+                },
+                preDrawCallback: function() {
+                    // sembunyikan loading default (yang biasanya muncul di tengah)
+                    $('.dataTables_processing').hide();
+                },
                 columns: [
                     { data: 'nomor_anggota', orderable:false, className: 'text-center w-[20px]',  render: data => `<span class="font-mono text-sm text-center">${data}</span>` },
                     { data: 'nama', orderable:false, render: data => `<span class="font-medium text-gray-900">${data}</span>` },
@@ -173,6 +216,7 @@
                     { data: 'golongan_darah', orderable:false, render: data => `<span class="px-2 py-1 text-xs bg-red-100 text-red-500 rounded">${data}</span>` },
                     { data: 'alamat', orderable:false, render: data => `<span class="font-mono text-sm">${data}</span>` },
                 ],
+                paging: false,
                 lengthChange: false,
                 searching: false,
                 pageLength: 10,
@@ -187,6 +231,8 @@
             .then(data => {
                 const container = document.getElementById('golonganContainer');
                 container.innerHTML = '';
+                document.getElementById('golonganLoading').style.display = 'none';
+                container.classList.remove('hidden');
 
                 const allGolongan = ['Siaga', 'Penggalang', 'Penegak', 'Pandega', 'Pembina'];
                 const colors = {

@@ -12,15 +12,39 @@ $(function () {
         });
     });
     const table = $('#guruTable').DataTable({
-        processing: true,
+        processing: "",
         scrollX:true,
         searching: true,
         serverSide: true,
         ajax: {
             url: '/data-anggota',
-            data: function(d) {
+            data: function (d) {
                 d.golongan_pramuka = $('#filterMapel').val();
+            },
+            dataSrc: function (json) {
+                $('#anggotaLoading').hide();
+                $('#guruTable').removeClass('hidden');
+
+                if (!json.data || json.data.length === 0) {
+                    $('#guruTable tbody').html(
+                        '<tr><td colspan="12" class="text-center py-4 text-gray-500">Tidak ada data ditemukan</td></tr>'
+                    );
+                    return [];
+                }
+
+                return json.data;
+            },
+            beforeSend: function () {
+                $('#anggotaLoading').show();
+                $('#guruTable').addClass('hidden');
+            },
+            error: function () {
+                $('#anggotaLoading').hide();
+                alert('Gagal memuat data anggota. Coba lagi nanti.');
             }
+        },
+        preDrawCallback: function() {
+            $('.dataTables_processing').hide();
         },
         columns: [
             { 
@@ -57,13 +81,13 @@ $(function () {
                 data: 'golongan_pramuka', 
                 name: 'Golongan Pramuka',
                 orderable: false,
-                render: data => `<span class="text-gray-700">${data || '-'}</span>`
+                render: data => `<span class="px-2 py-1 text-xs bg-red-500 text-red-100 rounded">${data || '-'}</span>`
             },
             { 
                 data: 'golongan_darah', 
                 name: 'Golongan Darah',
                 orderable: false,
-                render: data => `<span class="text-gray-700">${data || '-'}</span>`
+                render: data => `<span class="px-2 py-1 text-xs bg-red-100 text-red-500 rounded">${data || '-'}</span>`
             },
             { 
                 data: 'alamat', 
@@ -136,6 +160,7 @@ $(function () {
         pageLength: 10,
         dom: 'rt<"flex mt-2 justify-center"p>',
         language: {
+            processing: "",
             paginate: {
                 previous: '<span class="px-3 py-1 rounded-lg bg-gray-100 hover:bg-blue-500 hover:text-white transition">Prev</span>',
                 next: '<span class="px-3 py-1 rounded-lg bg-gray-100 hover:bg-blue-500 hover:text-white transition">Next</span>'

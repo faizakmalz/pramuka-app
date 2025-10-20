@@ -69,14 +69,23 @@
                     </div>
                 </div>
 
-                <x-nav-link class="mt-6 text-left text-gray-700 font-semibold w-[100px]" :href="route('profile.edit')" :active="request()->routeIs('profile.edit')">
+                <div class="mt-20">
+                    <x-nav-link class="mt-6 pl-5 text-left text-gray-700 font-semibold w-[100px]" :href="route('profile.edit')" :active="request()->routeIs('profile.edit')">
                         Profile
-                </x-nav-link>
+                    </x-nav-link>
 
-                <x-nav-link class="text-left text-gray-700 font-semibold w-[100px]" :href="route('logout')">
-                        Logout
-                </x-nav-link>
+                    <div class="text-left text-gray-700 font-semibold w-[100px]">
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
 
+                                <x-dropdown-link :href="route('logout')"
+                                        onclick="event.preventDefault();
+                                                    this.closest('form').submit();">
+                                    {{ __('Log Out') }}
+                                </x-dropdown-link>
+                            </form>
+                    </div>
+                </div>
                 
                 <!-- <div class="hidden sm:flex pt-10">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('')">
@@ -91,7 +100,7 @@
             </div>
 
             <!-- Settings Dropdown -->
-            <div class="flex items-center pl-10 pt-20 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">{{ Auth::user()->name }}</div>
+            
 
             <!-- Hamburger -->
             <div class="-me-2 flex items-center sm:hidden">

@@ -72,7 +72,18 @@
                 </div>
 
                 <div class="custom-datatable-wrapper">
-                    <table id="guruTable" class="custom-datatable w-full text-left">
+                    <div id="anggotaLoading" class="flex justify-center items-center py-6 text-gray-500">
+                        <div class="flex items-center gap-2">
+                            <svg class="animate-spin h-5 w-5 text-[#7D2A26]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4l-3 3 3 3H4z">
+                                </path>
+                            </svg>
+                            <span>Memuat data anggota...</span>
+                        </div>
+                    </div>
+                    <table id="guruTable" class="custom-datatable w-full text-left hidden">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-4 py-2">Nomor Anggota <span class="dt-sort-icon ml-2 inline-block"></span></th>
