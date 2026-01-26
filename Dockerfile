@@ -18,18 +18,17 @@ RUN npm run build
 # ===============================
 FROM php:8.2-fpm
 
-# Install system dependencies
+# Install system dependencies + nginx + supervisor
 RUN apt-get update && apt-get install -y \
     git unzip curl zip \
     libpng-dev libonig-dev libxml2-dev \
     libpq-dev default-mysql-client \
-    libzip-dev \
+    libzip-dev nginx supervisor \
     && docker-php-ext-install \
         pdo_mysql pdo_pgsql \
         mbstring exif pcntl bcmath gd zip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -48,6 +47,14 @@ RUN composer install --no-dev --optimize-autoloader
 # Permission fix
 RUN chown -R www-data:www-data storage bootstrap/cache
 
+# Copy Nginx config
+RUN rm /etc/nginx/sites-enabled/default
+COPY docker/nginx.conf /etc/nginx/sites-available/default
+RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+
+# Copy Supervisor config
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
 EXPOSE 8000
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
