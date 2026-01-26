@@ -10,10 +10,7 @@ return new class extends Migration
     {
         Schema::create('kenaikan_golongan', function (Blueprint $table) {
             $table->id();
-            $table->foreign('nomor_anggota')
-                ->references('nomor_anggota')
-                ->on('anggotas')
-                ->onDelete('cascade');
+            $table->foreignId('nomor_anggota')->constrained('anggotas', 'nomor_anggota')->onDelete('cascade');  
             $table->string('golongan_awal');
             $table->string('golongan_tujuan');
             $table->date('tanggal_kenaikan');
