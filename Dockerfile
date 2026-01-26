@@ -5,12 +5,22 @@ FROM node:20-alpine AS frontend
 
 WORKDIR /app
 
+# Copy package files
 COPY package*.json ./
 RUN npm install
 
+# PENTING: Copy SEMUA file config yang dibutuhkan Vite + Tailwind
 COPY resources ./resources
-COPY vite.config.* ./
+COPY vite.config.js ./
+COPY tailwind.config.js ./
+COPY postcss.config.js ./
+COPY public ./public
+
+# Build assets
 RUN npm run build
+
+# Verify build succeeded
+RUN ls -la public/build
 
 
 # ===============================
@@ -38,14 +48,15 @@ WORKDIR /var/www
 # Copy app source
 COPY . .
 
-# Copy built assets
+# Copy built assets from frontend stage
 COPY --from=frontend /app/public/build ./public/build
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
 # Permission fix
-RUN chown -R www-data:www-data storage bootstrap/cache
+RUN chown -R www-data:www-data storage bootstrap/cache && \
+    chmod -R 755 storage bootstrap/cache public/build
 
 # Copy Nginx config
 RUN rm /etc/nginx/sites-enabled/default
@@ -58,3 +69,6 @@ COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 EXPOSE 8000
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+```
+
+## Tambahkan di Environment Variables Railwa
