@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('kenaikan_golongan', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('nomor_anggota');
+            $table->bigInteger('nomor_anggota');
             $table->foreign('nomor_anggota')
                 ->references('nomor_anggota')
                 ->on('anggotas')

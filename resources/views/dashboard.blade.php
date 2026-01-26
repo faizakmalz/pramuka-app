@@ -216,11 +216,11 @@
                     { data: 'golongan_darah', orderable:false, render: data => `<span class="px-2 py-1 text-xs bg-red-100 text-red-500 rounded">${data}</span>` },
                     { data: 'alamat', orderable:false, render: data => `<span class="font-mono text-sm">${data}</span>` },
                 ],
-                paging: false,
+                // paging: true,
                 lengthChange: false,
                 searching: false,
                 pageLength: 10,
-                dom: 'rt<"flex justify-center"p>',
+                dom: 'rt',
             });
 
             fetch('{{ url('/dashboard/golongan-counts') }}', {

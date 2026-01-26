@@ -26,9 +26,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/anggota/{nomor_anggota}', [AnggotaController::class, 'destroy'])->name('anggota.destroy');
     Route::post('/anggota/import', [AnggotaController::class, 'import'])->name('anggota.import');
     Route::get('/anggota/golongan-pramuka', [AnggotaController::class, 'getGolonganPramuka']);
-    
     Route::get('/kenaikan', [KenaikanGolonganController::class, 'index'])->name('kenaikan');
     Route::post('/kenaikan', [KenaikanGolonganController::class, 'store'])->name('kenaikan.store');
+    Route::get('/anggota/{nomor_anggota}/kta', [AnggotaController::class, 'showKta']);
 });
 
 Route::get('/jadwal-event', [EventsController::class, 'index'])->name('jadwal-event');
@@ -38,7 +38,6 @@ Route::post('/events', [EventsController::class, 'store'])->name('event.store');
 Route::get('/events/{id}/edit', [EventsController::class, 'edit'])->name('event.edit');
 Route::put('/events/{id}', [EventsController::class, 'update'])->name('event.update');
 Route::delete('/events', [EventsController::class, 'destroy'])->name('event.destroy');
-
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

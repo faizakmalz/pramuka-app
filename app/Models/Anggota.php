@@ -16,6 +16,7 @@ class Anggota extends Model
     protected $keyType = 'string'; 
 
     protected $fillable = [
+        'nomor_anggota',
         'nik',
         'nama',
         'jenis_kelamin',

@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Imports\AnggotaImport;
 use App\Models\Anggota;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
+
+use function Laravel\Prompts\alert;
 
 class AnggotaController extends Controller
 {
@@ -61,6 +65,7 @@ class AnggotaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'nomor_anggota' => 'required|string',
             'nik' => 'required|string',
             'nama' => 'required|string|max:255',
             'jenis_kelamin' => 'required|string',
@@ -74,9 +79,36 @@ class AnggotaController extends Controller
             'no_telp' => 'nullable|string|max:20',
         ]);
 
-        Anggota::create($request->all());
+        $anggota = Anggota::create($request->all());
+
+        // Generate PDF
+        $pdf = PDF::loadView('cards.member-card', compact('anggota'))
+            ->setPaper('a5', 'landscape');
+
+        // Save ke R2
+        $filename = "cards/card-{$anggota->nomor_anggota}.pdf";
+        Storage::disk('r2')->put($filename, $pdf->output());
 
         return redirect()->route('anggota')->with('success', 'Data anggota berhasil ditambahkan.');
+}
+
+    public function showKta($nomor_anggota)
+    {
+        $filename = "cards/card-{$nomor_anggota}.pdf";
+        
+        if (Storage::disk('r2')->exists($filename)) {
+            return response()->make(
+                Storage::disk('r2')->get($filename),
+                200,
+                [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => 'inline; filename="card-'.$nomor_anggota.'.pdf"'
+                ]
+            );
+        } else {
+            alert('KTA not found in storage.');
+            return redirect()->route('anggota')->with('error', 'KTA not found.');
+        }
     }
 
     public function import(Request $request)
@@ -105,6 +137,7 @@ class AnggotaController extends Controller
         $anggota = Anggota::where('nomor_anggota', $nomor_anggota)->firstOrFail();
 
         $request->validate([
+            'nomor_anggota' => 'required|string',
             'nik' => 'required|string',
             'nama' => 'required|string|max:255',
             'jenis_kelamin' => 'required|string',
@@ -122,6 +155,15 @@ class AnggotaController extends Controller
 
         return redirect()->route('anggota')->with('success', 'Data anggota berhasil diperbarui.');
     }
+
+    public function generateCard(Anggota $anggota)
+    {
+        $pdf = PDF::loadView('cards.member-card', compact('anggota'))
+                ->setPaper('a7', 'landscape'); // small card size
+
+        return $pdf->download("member-card-{$anggota->id}.pdf");
+    }
+
 
     public function destroy($nomor_anggota)
     {

@@ -33,9 +33,13 @@ class DashboardController extends Controller
             'Pembina'
         ];
 
-        $counts = Anggota::select('golongan_pramuka', \DB::raw('COUNT(*) as total'))
-            ->groupBy('golongan_pramuka')
-            ->pluck('total', 'golongan_pramuka')
+        // Extract kata pertama sebelum " - " di query
+        $counts = Anggota::selectRaw("
+                SUBSTRING_INDEX(golongan_pramuka, ' - ', 1) as golongan_base,
+                COUNT(*) as total
+            ")
+            ->groupBy('golongan_base')
+            ->pluck('total', 'golongan_base')
             ->toArray();
 
         $result = [];

@@ -25,14 +25,18 @@ class KenaikanGolonganController extends Controller
             'catatan' => 'nullable|string',
         ]);
 
-        $kenaikan = KenaikanGolongan::create($validated);
+        try {
+            $kenaikan = KenaikanGolongan::create($validated);
 
-        $anggota = Anggota::where('nomor_anggota', $request->nomor_anggota)->first();
-        if ($anggota) {
-            $anggota->update(['golongan_pramuka' => $request->golongan_tujuan]);
+            $anggota = Anggota::where('nomor_anggota', $request->nomor_anggota)->first();
+            if ($anggota) {
+                $anggota->update(['golongan_pramuka' => $request->golongan_tujuan]);
+            }
+
+            return redirect()->back()->with('success', 'Kenaikan golongan berhasil disimpan.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan. Gagal menyimpan data.']);
         }
-
-        return redirect()->back()->with('success', 'Kenaikan golongan berhasil disimpan.');
     }
 
 }

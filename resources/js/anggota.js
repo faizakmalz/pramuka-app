@@ -133,6 +133,24 @@ $(function () {
             },
             {
                 data: 'nomor_anggota',
+                width: 100,
+                name: 'pdf',
+                orderable: false,
+                searchable: false,
+                render: (nomor_anggota) => `
+                    <div class="relative inline-block text-left">
+                        <a 
+                            class="text-white bg-[#610a08] hover:bg-gray-700 px-3 py-1 rounded"
+                            href="/anggota/${nomor_anggota}/kta"
+                            target="_blank"
+                        >
+                            Lihat KTA
+                        </a>
+                    </div>
+                `
+            },
+            {
+                data: 'nomor_anggota',
                 name: 'aksi',
                 orderable: false,
                 searchable: false,
@@ -151,10 +169,15 @@ $(function () {
                                 <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Delete</button>
                             </form>
                         </div>
+                        <button 
+                            class="view-kta-btn text-white bg-[#7D2A26] px-3 py-1 rounded"
+                            data-id="${nomor_anggota}"
+                        >
+                            Lihat KTA
+                        </button>
                     </div>
                 `
             }
-
         ],
         lengthChange: false,
         pageLength: 10,
@@ -184,6 +207,14 @@ $(function () {
                     this.submit();
                 }
             });
+
+            $('.view-kta-btn').on('click', function(e) {
+                const nomor_anggota = e.target.getAttribute("data-id");
+                const pdf = `/anggota/${nomor_anggota}/kta`
+                const alpineRoot = document.querySelector('[x-data]');
+                alpineRoot.__x.$data.openKta = true;
+                alpineRoot.__x.$data.pdfUrl = pdf;
+            })
 
 
             $('#guruTable thead th').each(function () {
