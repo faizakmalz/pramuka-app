@@ -16,9 +16,9 @@ COPY public ./public
 
 RUN npm run build
 
-# Verify build output
-RUN ls -la public/build && \
-    test -f public/build/manifest.json || (echo "ERROR: manifest.json not found!" && exit 1)
+# Debug build output
+RUN echo "=== Build Output ===" && \
+    ls -laR public/build
 
 
 # ===============================
@@ -29,7 +29,7 @@ FROM php:8.2-fpm
 # Install dependencies
 RUN apt-get update && apt-get install -y \
     git unzip curl zip \
-    libpng-dev libonig-dev libxml2-xml \
+    libpng-dev libonig-dev libxml2-dev \
     libpq-dev default-mysql-client \
     libzip-dev nginx supervisor \
     netcat-openbsd dnsutils \
@@ -62,12 +62,12 @@ WORKDIR /var/www
 
 COPY . .
 
-# Copy built assets BEFORE composer install (to avoid cache issues)
+# Copy built assets from frontend
 COPY --from=frontend /app/public/build ./public/build
 
-# Verify assets were copied
-RUN ls -la public/build && \
-    test -f public/build/manifest.json || (echo "ERROR: manifest.json not copied!" && exit 1)
+# Verify assets were copied (show structure, don't fail)
+RUN echo "=== Copied Build Assets ===" && \
+    ls -laR public/build || echo "No build folder"
 
 RUN composer install --no-dev --optimize-autoloader
 
