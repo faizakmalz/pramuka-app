@@ -3,7 +3,7 @@ set -e
 
 # Prevent double execution
 if [ -f /tmp/.deployment-complete ]; then
-    echo "⚠️  Deployment already completed, skipping..."
+    echo "⚠️  Deployment already completed, starting services..."
     exec "$@"
 fi
 
@@ -34,33 +34,22 @@ if [ ! -z "$DB_HOST" ]; then
     fi
     
     echo "✅ Database port is open!"
-    
-    # Wait a bit more for MySQL to be fully ready
-    sleep 5
+    sleep 3
 fi
 
-# Test database connection with retry
+# Test database connection
 echo ""
 echo "🔍 Testing database connection..."
-max_db_attempts=10
-db_attempt=0
-
-until php artisan db:show 2>/dev/null || [ $db_attempt -eq $max_db_attempts ]; do
-    db_attempt=$((db_attempt+1))
-    echo "Database test attempt $db_attempt/$max_db_attempts..."
-    sleep 3
-done
-
-if [ $db_attempt -eq $max_db_attempts ]; then
-    echo "⚠️  Could not verify database connection, proceeding anyway..."
-else
+if php artisan db:show 2>/dev/null; then
     echo "✅ Database connection verified"
+else
+    echo "⚠️  Database test failed, proceeding anyway..."
 fi
 
 # Run migrations
 echo ""
 echo "🔄 Running database migrations..."
-php artisan migrate --force --no-interaction || echo "⚠️  Migration warning (might be normal)"
+php artisan migrate --force --no-interaction || echo "⚠️  Migration warning"
 
 # Storage link
 echo ""
@@ -76,23 +65,14 @@ php artisan view:clear
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
-# Test PHP-FPM
-echo ""
-echo "🔍 Testing PHP-FPM..."
-if command -v php-fpm 2>&1 | grep -q "php-fpm"; then
-    echo "✅ PHP-FPM binary found"
-else
-    echo "❌ PHP-FPM binary NOT found"
-fi
-
-# Create test PHP file
-echo "<?php phpinfo(); ?>" > /var/www/public/test.php
-echo "✅ Created test.php"
 
 echo ""
 echo "========================================="
 echo "✅ Deployment Complete!"
 echo "========================================="
 
+# Mark as complete BEFORE starting services
 touch /tmp/.deployment-complete
+
+# Execute services
 exec "$@"

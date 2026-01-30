@@ -15,7 +15,6 @@ COPY postcss.config.js ./
 COPY public ./public
 
 RUN npm run build
-RUN ls -la public/build
 
 
 # ===============================
@@ -39,12 +38,14 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Configure PHP-FPM untuk listen di Unix socket
-RUN mkdir -p /var/run/php && \
-    sed -i 's/listen = .*/listen = \/var\/run\/php\/php8.2-fpm.sock/' /usr/local/etc/php-fpm.d/www.conf && \
-    sed -i 's/;listen.owner = .*/listen.owner = www-data/' /usr/local/etc/php-fpm.d/www.conf && \
-    sed -i 's/;listen.group = .*/listen.group = www-data/' /usr/local/etc/php-fpm.d/www.conf && \
-    sed -i 's/;listen.mode = .*/listen.mode = 0660/' /usr/local/etc/php-fpm.d/www.conf
+# PHP-FPM configuration
+RUN echo "listen = 127.0.0.1:9000" > /usr/local/etc/php-fpm.d/zz-docker.conf && \
+    echo "pm = dynamic" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
+    echo "pm.max_children = 50" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
+    echo "pm.start_servers = 5" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
+    echo "pm.min_spare_servers = 5" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
+    echo "pm.max_spare_servers = 35" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
+    echo "clear_env = no" >> /usr/local/etc/php-fpm.d/zz-docker.conf
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -58,16 +59,19 @@ RUN composer install --no-dev --optimize-autoloader
 
 # Permissions
 RUN chown -R www-data:www-data /var/www && \
-    chmod -R 755 storage bootstrap/cache public && \
+    chmod -R 755 /var/www && \
     chmod -R 775 storage bootstrap/cache
 
 # Nginx config
-RUN rm /etc/nginx/sites-enabled/default
-COPY docker/nginx.conf /etc/nginx/sites-available/default
-RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+RUN rm -f /etc/nginx/sites-enabled/default
+COPY docker/nginx.conf /etc/nginx/sites-available/laravel
+RUN ln -s /etc/nginx/sites-available/laravel /etc/nginx/sites-enabled/
 
 # Supervisor config
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Verify configs
+RUN nginx -t && php-fpm -t
 
 EXPOSE 8000
 
