@@ -5,20 +5,27 @@ FROM node:20-alpine AS frontend
 
 WORKDIR /app
 
+# Copy package files
 COPY package*.json ./
-RUN npm install
 
+# Install ALL dependencies (including production deps like jquery, datatables)
+RUN npm ci
+
+# Copy source files
 COPY resources ./resources
 COPY vite.config.js ./
 COPY tailwind.config.js ./
 COPY postcss.config.js ./
 COPY public ./public
 
+# Build
 RUN npm run build
 
-# Debug build output
+# Verify build
 RUN echo "=== Build Output ===" && \
-    ls -laR public/build
+    ls -laR public/build && \
+    echo "=== Manifest ===" && \
+    cat public/build/manifest.json
 
 
 # ===============================
@@ -62,12 +69,13 @@ WORKDIR /var/www
 
 COPY . .
 
-# Copy built assets from frontend
 COPY --from=frontend /app/public/build ./public/build
 
-# Verify assets were copied (show structure, don't fail)
+# Verify assets + manifest
 RUN echo "=== Copied Build Assets ===" && \
-    ls -laR public/build || echo "No build folder"
+    ls -laR public/build && \
+    echo "=== Manifest Check ===" && \
+    cat public/build/manifest.json || echo "❌ MANIFEST MISSING"
 
 RUN composer install --no-dev --optimize-autoloader
 

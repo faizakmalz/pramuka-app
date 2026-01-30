@@ -8,6 +8,21 @@ echo "Environment: $APP_ENV"
 echo "PHP Version: $(php -v | head -n 1)"
 echo "Laravel Version: $(php artisan --version)"
 
+echo "========================================="
+echo "🚀 Laravel Deployment Starting..."
+echo "========================================="
+
+# Validate Vite manifest
+echo ""
+echo "🔍 Checking Vite manifest..."
+if [ ! -f "/var/www/public/build/manifest.json" ]; then
+    echo "❌ ERROR: manifest.json not found!"
+    echo "Build directory contents:"
+    ls -la /var/www/public/build/ || echo "Build directory missing!"
+    exit 1
+fi
+echo "✅ Manifest found!"
+
 # Wait for database
 if [ ! -z "$DB_HOST" ]; then
     echo ""
