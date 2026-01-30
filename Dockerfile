@@ -5,27 +5,23 @@ FROM node:20-alpine AS frontend
 
 WORKDIR /app
 
-# Copy package files
 COPY package*.json ./
-
-# Install ALL dependencies (including production deps like jquery, datatables)
 RUN npm ci
 
-# Copy source files
 COPY resources ./resources
 COPY vite.config.js ./
 COPY tailwind.config.js ./
 COPY postcss.config.js ./
 COPY public ./public
 
-# Build
+# Build fresh
 RUN npm run build
 
-# Verify build
-RUN echo "=== Build Output ===" && \
-    ls -laR public/build && \
-    echo "=== Manifest ===" && \
+# Verify
+RUN echo "=== Frontend Build Complete ===" && \
+    ls -la public/build && \
     cat public/build/manifest.json
+
 
 
 # ===============================

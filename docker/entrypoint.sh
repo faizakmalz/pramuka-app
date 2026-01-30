@@ -4,24 +4,20 @@ set -e
 echo "========================================="
 echo "🚀 Laravel Deployment Starting..."
 echo "========================================="
-echo "Environment: $APP_ENV"
-echo "PHP Version: $(php -v | head -n 1)"
-echo "Laravel Version: $(php artisan --version)"
 
-echo "========================================="
-echo "🚀 Laravel Deployment Starting..."
-echo "========================================="
-
-# Validate Vite manifest
+# Verify Vite manifest
 echo ""
-echo "🔍 Checking Vite manifest..."
+echo "🎨 Verifying Vite assets..."
 if [ ! -f "/var/www/public/build/manifest.json" ]; then
     echo "❌ ERROR: manifest.json not found!"
-    echo "Build directory contents:"
+    echo "Build directory:"
     ls -la /var/www/public/build/ || echo "Build directory missing!"
     exit 1
 fi
+
 echo "✅ Manifest found!"
+echo "Assets available:"
+ls -la /var/www/public/build/assets/ | head -10
 
 # Wait for database
 if [ ! -z "$DB_HOST" ]; then
