@@ -1,4 +1,28 @@
 # ===============================
+# FRONTEND (Vite / Node 20)
+# ===============================
+FROM node:20-alpine AS frontend
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+RUN npm install
+
+# Copy config files
+COPY resources ./resources
+COPY vite.config.js ./
+COPY tailwind.config.js ./
+COPY postcss.config.js ./
+COPY public ./public
+
+# Build assets
+RUN npm run build
+
+# Verify build succeeded
+RUN ls -la public/build
+
+# ===============================
 # BACKEND (Laravel PHP 8.2)
 # ===============================
 FROM php:8.2-fpm
