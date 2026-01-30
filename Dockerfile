@@ -29,7 +29,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev default-mysql-client \
     libzip-dev nginx supervisor \
     netcat-openbsd dnsutils \
-    libicu-dev \
+    libicu-dev procps \
     && docker-php-ext-configure intl \
     && docker-php-ext-install \
         pdo_mysql pdo_pgsql \
@@ -39,13 +39,18 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # PHP-FPM configuration
-RUN echo "listen = 127.0.0.1:9000" > /usr/local/etc/php-fpm.d/zz-docker.conf && \
+RUN echo "[www]" > /usr/local/etc/php-fpm.d/zz-docker.conf && \
+    echo "user = www-data" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
+    echo "group = www-data" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
+    echo "listen = 127.0.0.1:9000" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
     echo "pm = dynamic" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
-    echo "pm.max_children = 50" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
-    echo "pm.start_servers = 5" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
-    echo "pm.min_spare_servers = 5" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
-    echo "pm.max_spare_servers = 35" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
-    echo "clear_env = no" >> /usr/local/etc/php-fpm.d/zz-docker.conf
+    echo "pm.max_children = 20" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
+    echo "pm.start_servers = 2" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
+    echo "pm.min_spare_servers = 1" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
+    echo "pm.max_spare_servers = 3" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
+    echo "clear_env = no" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
+    echo "catch_workers_output = yes" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
+    echo "decorate_workers_output = no" >> /usr/local/etc/php-fpm.d/zz-docker.conf
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -62,16 +67,20 @@ RUN chown -R www-data:www-data /var/www && \
     chmod -R 755 /var/www && \
     chmod -R 775 storage bootstrap/cache
 
+# Create required directories
+RUN mkdir -p /var/log/supervisor /var/run
+
 # Nginx config
-RUN rm -f /etc/nginx/sites-enabled/default
-COPY docker/nginx.conf /etc/nginx/sites-available/laravel
-RUN ln -s /etc/nginx/sites-available/laravel /etc/nginx/sites-enabled/
+RUN rm -f /etc/nginx/sites-enabled/default /etc/nginx/sites-available/default
+COPY docker/nginx.conf /etc/nginx/sites-available/laravel.conf
+RUN ln -s /etc/nginx/sites-available/laravel.conf /etc/nginx/sites-enabled/
 
 # Supervisor config
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Verify configs
-RUN nginx -t && php-fpm -t
+# Test configs
+RUN nginx -t
+RUN php-fpm -t
 
 EXPOSE 8000
 
@@ -79,4 +88,4 @@ COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
