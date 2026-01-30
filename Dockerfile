@@ -1,29 +1,4 @@
 # ===============================
-# FRONTEND (Vite / Node 20)
-# ===============================
-FROM node:20-alpine AS frontend
-
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-RUN npm install
-
-# Copy config files
-COPY resources ./resources
-COPY vite.config.js ./
-COPY tailwind.config.js ./
-COPY postcss.config.js ./
-COPY public ./public
-
-# Build assets
-RUN npm run build
-
-# Verify build succeeded
-RUN ls -la public/build
-
-
-# ===============================
 # BACKEND (Laravel PHP 8.2)
 # ===============================
 FROM php:8.2-fpm
@@ -35,9 +10,12 @@ RUN apt-get update && apt-get install -y \
     libpq-dev default-mysql-client \
     libzip-dev nginx supervisor \
     netcat-openbsd dnsutils \
+    libicu-dev \
+    && docker-php-ext-configure intl \
     && docker-php-ext-install \
         pdo_mysql pdo_pgsql \
         mbstring exif pcntl bcmath gd zip \
+        intl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
