@@ -14,24 +14,48 @@ echo "Laravel Version: $(php artisan --version)"
 if [ ! -z "$DB_HOST" ]; then
     echo ""
     echo "⏳ Waiting for database at $DB_HOST:$DB_PORT..."
+    echo "🔍 Debug Info:"
+    echo "   DB_CONNECTION: $DB_CONNECTION"
+    echo "   DB_HOST: $DB_HOST"
+    echo "   DB_PORT: $DB_PORT"
+    echo "   DB_DATABASE: $DB_DATABASE"
+    echo "   DB_USERNAME: $DB_USERNAME"
     
+    # Test DNS resolution
+    echo ""
+    echo "🔍 Testing DNS resolution..."
+    if command -v nslookup &> /dev/null; then
+        nslookup $DB_HOST || echo "⚠️  DNS lookup failed"
+    fi
+    
+    echo ""
+    echo "🔍 Testing connectivity..."
     max_attempts=30
     attempt=0
     
-    until nc -z -v -w5 $DB_HOST $DB_PORT 2>/dev/null || [ $attempt -eq $max_attempts ]; do
+    until nc -z -v -w5 $DB_HOST $DB_PORT 2>&1 | tee /tmp/nc_output.txt || [ $attempt -eq $max_attempts ]; do
         attempt=$((attempt+1))
-        echo "Attempt $attempt/$max_attempts: Database not ready, waiting..."
+        echo "Attempt $attempt/$max_attempts: Database not ready"
+        cat /tmp/nc_output.txt 2>/dev/null
         sleep 2
     done
     
     if [ $attempt -eq $max_attempts ]; then
+        echo ""
         echo "❌ ERROR: Could not connect to database after $max_attempts attempts"
-        echo "DB_HOST: $DB_HOST"
-        echo "DB_PORT: $DB_PORT"
+        echo ""
+        echo "🔧 Troubleshooting:"
+        echo "1. Check MySQL service is running in Railway"
+        echo "2. Verify Private Network is enabled on BOTH services"
+        echo "3. Check service reference name (mysql.railway.internal)"
+        echo "4. Verify DB_HOST variable value"
+        echo ""
+        echo "Current DB_HOST: $DB_HOST"
+        echo "Current DB_PORT: $DB_PORT"
         exit 1
     fi
     
-    echo "✅ Database connection successful!"
+    echo "✅ Database port is open!"
 fi
 
 # Test database connection
