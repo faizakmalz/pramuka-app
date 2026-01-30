@@ -16,6 +16,10 @@ COPY public ./public
 
 RUN npm run build
 
+# Verify build output
+RUN ls -la public/build && \
+    test -f public/build/manifest.json || (echo "ERROR: manifest.json not found!" && exit 1)
+
 
 # ===============================
 # BACKEND (Laravel PHP 8.2)
@@ -25,7 +29,7 @@ FROM php:8.2-fpm
 # Install dependencies
 RUN apt-get update && apt-get install -y \
     git unzip curl zip \
-    libpng-dev libonig-dev libxml2-dev \
+    libpng-dev libonig-dev libxml2-xml \
     libpq-dev default-mysql-client \
     libzip-dev nginx supervisor \
     netcat-openbsd dnsutils \
@@ -49,8 +53,7 @@ RUN echo "[www]" > /usr/local/etc/php-fpm.d/zz-docker.conf && \
     echo "pm.min_spare_servers = 1" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
     echo "pm.max_spare_servers = 3" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
     echo "clear_env = no" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
-    echo "catch_workers_output = yes" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
-    echo "decorate_workers_output = no" >> /usr/local/etc/php-fpm.d/zz-docker.conf
+    echo "catch_workers_output = yes" >> /usr/local/etc/php-fpm.d/zz-docker.conf
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -58,7 +61,13 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www
 
 COPY . .
+
+# Copy built assets BEFORE composer install (to avoid cache issues)
 COPY --from=frontend /app/public/build ./public/build
+
+# Verify assets were copied
+RUN ls -la public/build && \
+    test -f public/build/manifest.json || (echo "ERROR: manifest.json not copied!" && exit 1)
 
 RUN composer install --no-dev --optimize-autoloader
 
