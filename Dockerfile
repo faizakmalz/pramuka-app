@@ -9,7 +9,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-# PENTING: Copy SEMUA file config yang dibutuhkan Vite + Tailwind
+# Copy config files
 COPY resources ./resources
 COPY vite.config.js ./
 COPY tailwind.config.js ./
@@ -28,7 +28,7 @@ RUN ls -la public/build
 # ===============================
 FROM php:8.2-fpm
 
-# Install system dependencies + nginx + supervisor
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     git unzip curl zip \
     libpng-dev libonig-dev libxml2-dev \
@@ -48,15 +48,15 @@ WORKDIR /var/www
 # Copy app source
 COPY . .
 
-# Copy built assets from frontend stage
+# Copy built assets from frontend
 COPY --from=frontend /app/public/build ./public/build
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
 # Permission fix
-RUN chown -R www-data:www-data storage bootstrap/cache && \
-    chmod -R 755 storage bootstrap/cache public/build
+RUN chown -R www-data:www-data storage bootstrap/cache public && \
+    chmod -R 755 storage bootstrap/cache public
 
 # Copy Nginx config
 RUN rm /etc/nginx/sites-enabled/default
@@ -68,4 +68,9 @@ COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 EXPOSE 8000
 
+# Entrypoint untuk setup runtime
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
