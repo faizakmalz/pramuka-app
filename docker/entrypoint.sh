@@ -76,14 +76,23 @@ php artisan view:clear
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+# Test PHP-FPM
+echo ""
+echo "🔍 Testing PHP-FPM..."
+if command -v php-fpm 2>&1 | grep -q "php-fpm"; then
+    echo "✅ PHP-FPM binary found"
+else
+    echo "❌ PHP-FPM binary NOT found"
+fi
+
+# Create test PHP file
+echo "<?php phpinfo(); ?>" > /var/www/public/test.php
+echo "✅ Created test.php"
 
 echo ""
 echo "========================================="
 echo "✅ Deployment Complete!"
 echo "========================================="
 
-# Mark deployment as complete
 touch /tmp/.deployment-complete
-
-# Execute CMD
 exec "$@"

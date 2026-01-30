@@ -5,22 +5,18 @@ FROM node:20-alpine AS frontend
 
 WORKDIR /app
 
-# Copy package files
 COPY package*.json ./
 RUN npm install
 
-# Copy config files
 COPY resources ./resources
 COPY vite.config.js ./
 COPY tailwind.config.js ./
 COPY postcss.config.js ./
 COPY public ./public
 
-# Build assets
 RUN npm run build
-
-# Verify build succeeded
 RUN ls -la public/build
+
 
 # ===============================
 # BACKEND (Laravel PHP 8.2)
@@ -43,35 +39,38 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Configure PHP-FPM untuk listen di Unix socket
+RUN mkdir -p /var/run/php && \
+    sed -i 's/listen = .*/listen = \/var\/run\/php\/php8.2-fpm.sock/' /usr/local/etc/php-fpm.d/www.conf && \
+    sed -i 's/;listen.owner = .*/listen.owner = www-data/' /usr/local/etc/php-fpm.d/www.conf && \
+    sed -i 's/;listen.group = .*/listen.group = www-data/' /usr/local/etc/php-fpm.d/www.conf && \
+    sed -i 's/;listen.mode = .*/listen.mode = 0660/' /usr/local/etc/php-fpm.d/www.conf
+
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
-# Copy app source
 COPY . .
-
-# Copy built assets from frontend
 COPY --from=frontend /app/public/build ./public/build
 
-# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Permission fix
-RUN chown -R www-data:www-data storage bootstrap/cache public && \
-    chmod -R 755 storage bootstrap/cache public
+# Permissions
+RUN chown -R www-data:www-data /var/www && \
+    chmod -R 755 storage bootstrap/cache public && \
+    chmod -R 775 storage bootstrap/cache
 
-# Copy Nginx config
+# Nginx config
 RUN rm /etc/nginx/sites-enabled/default
 COPY docker/nginx.conf /etc/nginx/sites-available/default
 RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 
-# Copy Supervisor config
+# Supervisor config
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 EXPOSE 8000
 
-# Entrypoint untuk setup runtime
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
