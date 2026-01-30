@@ -15,11 +15,12 @@ export default defineConfig({
     build: {
         manifest: true,
         outDir: 'public/build',
+        // TAMBAHKAN INI - manifest di root, bukan di .vite folder
         rollupOptions: {
             output: {
                 entryFileNames: 'assets/[name]-[hash].js',
                 chunkFileNames: 'assets/[name]-[hash].js',
-                assetFileNames: 'assets/[name]-[hash].[ext]'
+                assetFileNames: 'assets/[name]-[hash].[ext]',
             }
         }
     },
