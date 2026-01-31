@@ -63,16 +63,16 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
+# 1. Copy semua file project
 COPY . .
 
+# 2. HAPUS folder build dan vendor yang mungkin terbawa dari lokal (PENTING)
+RUN rm -rf public/build vendor
+
+# 3. Ambil hasil build yang fresh dari stage frontend
 COPY --from=frontend /app/public/build ./public/build
 
-# Verify assets + manifest
-RUN echo "=== Copied Build Assets ===" && \
-    ls -laR public/build && \
-    echo "=== Manifest Check ===" && \
-    cat public/build/manifest.json || echo "❌ MANIFEST MISSING"
-
+# 4. Jalankan composer
 RUN composer install --no-dev --optimize-autoloader
 
 # Permissions

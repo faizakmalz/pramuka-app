@@ -4,27 +4,17 @@ import laravel from 'laravel-vite-plugin';
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/css/app.css',
-    'resources/js/app.js',
-    'resources/js/golongan.js',
-    'resources/js/event.js',
-    'resources/js/anggota.js',
-    'resources/js/bootstrap.js',],
+            input: [
+                'resources/css/app.css',
+                'resources/js/app.js',
+                'resources/js/golongan.js',
+                'resources/js/event.js',
+                'resources/js/anggota.js',
+                'resources/js/bootstrap.js',
+            ],
             refresh: true,
         }),
     ],
-    build: {
-        manifest: true,
-        outDir: 'public/build',
-        // TAMBAHKAN INI - manifest di root, bukan di .vite folder
-        rollupOptions: {
-            output: {
-                entryFileNames: 'assets/[name]-[hash].js',
-                chunkFileNames: 'assets/[name]-[hash].js',
-                assetFileNames: 'assets/[name]-[hash].[ext]',
-            }
-        }
-    },
     resolve: {
         alias: {
             '$': 'jquery',
