@@ -8,6 +8,7 @@ export default defineConfig({
     'resources/js/app.js',
     'resources/js/golongan.js',
     'resources/js/event.js',
+    'resources/js/anggota.js',
     'resources/js/bootstrap.js',],
             refresh: true,
         }),
