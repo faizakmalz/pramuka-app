@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
-use function Laravel\Prompts\alert;
-
 class AnggotaController extends Controller
 {
     public function index()
@@ -82,33 +80,34 @@ class AnggotaController extends Controller
         $anggota = Anggota::create($request->all());
 
         // Generate PDF
-        $pdf = PDF::loadView('cards.member-card', compact('anggota'))
+        $pdf = Pdf::loadView('cards.member-card', compact('anggota'))
             ->setPaper('a5', 'landscape');
 
-        // Save ke R2
+        // Simpan ke local storage (public)
         $filename = "cards/card-{$anggota->nomor_anggota}.pdf";
-        Storage::disk('r2')->put($filename, $pdf->output());
+        Storage::disk('public')->put($filename, $pdf->output());
 
-        return redirect()->route('anggota')->with('success', 'Data anggota berhasil ditambahkan.');
-}
+        return redirect()->route('anggota')
+            ->with('success', 'Data anggota berhasil ditambahkan.');
+    }
 
     public function showKta($nomor_anggota)
     {
         $filename = "cards/card-{$nomor_anggota}.pdf";
-        
-        if (Storage::disk('r2')->exists($filename)) {
+
+        if (Storage::disk('public')->exists($filename)) {
             return response()->make(
-                Storage::disk('r2')->get($filename),
+                Storage::disk('public')->get($filename),
                 200,
                 [
                     'Content-Type' => 'application/pdf',
                     'Content-Disposition' => 'inline; filename="card-'.$nomor_anggota.'.pdf"'
                 ]
             );
-        } else {
-            alert('KTA not found in storage.');
-            return redirect()->route('anggota')->with('error', 'KTA not found.');
         }
+
+        return redirect()->route('anggota')
+            ->with('error', 'KTA not found.');
     }
 
     public function import(Request $request)
@@ -117,13 +116,10 @@ class AnggotaController extends Controller
             'file' => 'required|mimes:xlsx,xls,csv',
         ]);
 
-        $file = $request->file('file');
-        $path = $file->getRealPath();
+        // Excel::import(new AnggotaImport, $request->file('file'));
 
-        $importer = new AnggotaImport();
-        $importer->import($path);
-
-        return redirect()->back()->with('success', 'Data anggota berhasil diimport.');
+        return redirect()->back()
+            ->with('success', 'Data anggota berhasil diimport.');
     }
 
     public function edit($nomor_anggota)
@@ -153,27 +149,38 @@ class AnggotaController extends Controller
 
         $anggota->update($request->all());
 
-        return redirect()->route('anggota')->with('success', 'Data anggota berhasil diperbarui.');
+        return redirect()->route('anggota')
+            ->with('success', 'Data anggota berhasil diperbarui.');
     }
 
     public function generateCard(Anggota $anggota)
     {
-        $pdf = PDF::loadView('cards.member-card', compact('anggota'))
-                ->setPaper('a7', 'landscape'); // small card size
+        $pdf = Pdf::loadView('cards.member-card', compact('anggota'))
+            ->setPaper('a7', 'landscape');
 
         return $pdf->download("member-card-{$anggota->id}.pdf");
     }
-
 
     public function destroy($nomor_anggota)
     {
         $anggota = Anggota::where('nomor_anggota', $nomor_anggota)->first();
 
         if ($anggota) {
+            // Hapus file PDF juga kalau ada
+            $filename = "cards/card-{$nomor_anggota}.pdf";
+            if (Storage::disk('public')->exists($filename)) {
+                Storage::disk('public')->delete($filename);
+            }
+
             $anggota->delete();
-            return redirect()->route('anggota')->with('success', 'Data Berhasip Dihapus');
+
+            return redirect()->route('anggota')
+                ->with('success', 'Data berhasil dihapus.');
         }
 
-        return response()->json(['success' => false, 'message' => 'Data anggota tidak ditemukan.']);
+        return response()->json([
+            'success' => false,
+            'message' => 'Data anggota tidak ditemukan.'
+        ]);
     }
 }
