@@ -1,0 +1,65 @@
+{
+  "_dataTables-DiaTurq6.js": {
+    "file": "assets/dataTables-DiaTurq6.js",
+    "name": "dataTables",
+    "css": [
+      "assets/dataTables-QfZAERKT.css"
+    ]
+  },
+  "_dataTables-QfZAERKT.css": {
+    "file": "assets/dataTables-QfZAERKT.css",
+    "src": "_dataTables-QfZAERKT.css"
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-C2FLp0fd.css",
+    "src": "resources/css/app.css",
+    "isEntry": true,
+    "name": "app",
+    "names": [
+      "app.css"
+    ]
+  },
+  "resources/js/anggota.js": {
+    "file": "assets/anggota-B2NBOyyl.js",
+    "name": "anggota",
+    "src": "resources/js/anggota.js",
+    "isEntry": true,
+    "imports": [
+      "resources/js/bootstrap.js",
+      "_dataTables-DiaTurq6.js"
+    ]
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-BJ7JnwGg.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "imports": [
+      "resources/js/bootstrap.js",
+      "_dataTables-DiaTurq6.js",
+      "resources/js/golongan.js"
+    ]
+  },
+  "resources/js/bootstrap.js": {
+    "file": "assets/bootstrap-DIuewKhF.js",
+    "name": "bootstrap",
+    "src": "resources/js/bootstrap.js",
+    "isEntry": true
+  },
+  "resources/js/event.js": {
+    "file": "assets/event-d1iAQ8LJ.js",
+    "name": "event",
+    "src": "resources/js/event.js",
+    "isEntry": true,
+    "imports": [
+      "resources/js/bootstrap.js",
+      "_dataTables-DiaTurq6.js"
+    ]
+  },
+  "resources/js/golongan.js": {
+    "file": "assets/golongan-Sol8I0yw.js",
+    "name": "golongan",
+    "src": "resources/js/golongan.js",
+    "isEntry": true
+  }
+}
