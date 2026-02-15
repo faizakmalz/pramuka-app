@@ -95,6 +95,10 @@ class AnggotaController extends Controller
     {
         $filename = "cards/card-{$nomor_anggota}.pdf";
 
+        if (!Storage::disk('public')->exists('cards')) {
+            Storage::disk('public')->makeDirectory('cards');
+        }
+
         if (Storage::disk('public')->exists($filename)) {
             return response()->make(
                 Storage::disk('public')->get($filename),
