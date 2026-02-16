@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Anggota extends Model
 {
@@ -33,5 +34,12 @@ class Anggota extends Model
     public function kenaikanGolongans()
     {
         return $this->hasMany(KenaikanGolongan::class, 'nomor_anggota', 'nomor_anggota');
+    }
+
+    public function kenaikanTerbaru(): HasOne
+    {
+        return $this->hasOne(KenaikanGolongan::class, 'nomor_anggota', 'nomor_anggota')
+            ->whereNotNull('nomor_sertifikat')
+            ->latestOfMany('tanggal_kenaikan');
     }
 }
