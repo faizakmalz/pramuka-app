@@ -11,7 +11,7 @@
     "src": "_dataTables-QfZAERKT.css"
   },
   "resources/css/app.css": {
-    "file": "assets/app-C2FLp0fd.css",
+    "file": "assets/app-BTRcZKOH.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "name": "app",
@@ -20,7 +20,7 @@
     ]
   },
   "resources/js/anggota.js": {
-    "file": "assets/anggota-B2NBOyyl.js",
+    "file": "assets/anggota-CdcJRjFn.js",
     "name": "anggota",
     "src": "resources/js/anggota.js",
     "isEntry": true,
