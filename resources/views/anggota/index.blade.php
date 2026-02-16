@@ -8,18 +8,16 @@
     <div class="pt-6 flex flex-col">
         <div class="flex items-center justify-end gap-3 pr-8 pb-4 w-full">
             <div x-data="{ open: false }" class="flex gap-3">
-                <div class="flex flex-wrap items-center justify-end gap-3">
-                    <x-primary-button class="w-[300px] block text-center" onclick="window.location='{{ route('anggota.create') }}'">
+                <x-primary-button class="w-[300px] block text-center" onclick="window.location='{{ route('anggota.create') }}'">
                     {{ __('+ Tambah Anggota') }}
-                    </x-primary-button>
-                    <x-primary-button class="w-[300px] block text-center" @click="open = true">
-                        {{ __('Import XLSX') }}
-                    </x-primary-button>
-                    <div x-data="{ openExport: false }">
-                    <x-primary-button class="w-[300px] block text-center" @click="openExport = true">
-                        {{ __('Export Excel') }}
-                    </x-primary-button>
-                </div>
+                </x-primary-button>
+                <x-primary-button class="w-[300px] block text-center" @click="open = true">
+                    {{ __('Import XLSX') }}
+                </x-primary-button>
+                <div x-data="{ openExport: false }">
+                <x-primary-button class="w-[300px] block text-center" @click="openExport = true">
+                    {{ __('Export Excel') }}
+                </x-primary-button>
 
                 {{-- Modal Export --}}
                 <div
@@ -177,9 +175,6 @@
             <iframe :src="pdfUrl" class="w-full h-[600px] border rounded"></iframe>
         </div>
     </div>
-
-</div>
-
 
     <style>
         .custom-datatable-wrapper {
