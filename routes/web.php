@@ -28,6 +28,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/anggota/golongan-pramuka', [AnggotaController::class, 'getGolonganPramuka']);
     Route::get('/kenaikan', [KenaikanGolonganController::class, 'index'])->name('kenaikan');
     Route::post('/kenaikan', [KenaikanGolonganController::class, 'store'])->name('kenaikan.store');
+    Route::get('/kenaikan-golongan/sertifikat/{nomor_sertifikat}', [KenaikanGolonganController::class, 'showSertifikat'])->name('kenaikan.sertifikat.show');
+    Route::get('/kenaikan-golongan/sertifikat/{nomor_sertifikat}/download', [KenaikanGolonganController::class, 'downloadSertifikat'])->name('kenaikan.sertifikat.download');
     Route::get('/anggota/{nomor_anggota}/kta', [AnggotaController::class, 'showKta']);
 });
 
