@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AnggotaExport;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Imports\AnggotaImport;
 use App\Models\Anggota;
@@ -161,6 +162,13 @@ class AnggotaController extends Controller
         // Excel::import(new AnggotaImport, $request->file('file'));
 
         return redirect()->back()->with('success', 'Data anggota berhasil diimport.');
+    }
+
+    public function export(Request $request)
+    {
+        $golongan = $request->get('golongan_pramuka');
+
+        return (new AnggotaExport($golongan))->download();
     }
 
     public function edit($nomor_anggota)

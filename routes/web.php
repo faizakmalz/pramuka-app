@@ -25,6 +25,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/anggota/{nomor_anggota}', [AnggotaController::class, 'update'])->name('anggota.update');
     Route::delete('/anggota/{nomor_anggota}', [AnggotaController::class, 'destroy'])->name('anggota.destroy');
     Route::post('/anggota/import', [AnggotaController::class, 'import'])->name('anggota.import');
+    Route::get('/anggota/export', [AnggotaController::class, 'export'])->name('anggota.export');
     Route::get('/anggota/golongan-pramuka', [AnggotaController::class, 'getGolonganPramuka']);
     Route::get('/kenaikan', [KenaikanGolonganController::class, 'index'])->name('kenaikan');
     Route::post('/kenaikan', [KenaikanGolonganController::class, 'store'])->name('kenaikan.store');

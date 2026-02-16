@@ -236,6 +236,11 @@ $(function () {
     });
 
     $('#filterMapel').on('change', function() {
+        const golongan = this.value;
+            const baseUrl = '{{ route('anggota.export') }}';
+            document.getElementById('btnExport').href = golongan
+                ? `${baseUrl}?golongan_pramuka=${encodeURIComponent(golongan)}`
+                : baseUrl;
         table.ajax.reload();
     });
 });

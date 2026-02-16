@@ -20,6 +20,10 @@ class KenaikanGolongan extends Model
         'catatan',
     ];
 
+    protected $casts = [
+        'tanggal_kenaikan' => 'date',
+    ];
+
     public function anggota()
     {
         return $this->belongsTo(Anggota::class, 'nomor_anggota', 'nomor_anggota');
