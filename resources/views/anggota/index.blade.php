@@ -8,16 +8,18 @@
     <div class="pt-6 flex flex-col">
         <div class="flex items-center justify-end gap-3 pr-8 pb-4 w-full">
             <div x-data="{ open: false }" class="flex gap-3">
-                <x-primary-button class="w-[300px] block text-center" onclick="window.location='{{ route('anggota.create') }}'">
+                <div class="flex flex-wrap items-center justify-end gap-3">
+                    <x-primary-button class="w-[300px] block text-center" onclick="window.location='{{ route('anggota.create') }}'">
                     {{ __('+ Tambah Anggota') }}
-                </x-primary-button>
-                <x-primary-button class="w-[300px] block text-center" @click="open = true">
-                    {{ __('Import XLSX') }}
-                </x-primary-button>
-                <div x-data="{ openExport: false }">
-                <x-primary-button class="w-[300px] block text-center" @click="openExport = true">
-                    {{ __('Export Excel') }}
-                </x-primary-button>
+                    </x-primary-button>
+                    <x-primary-button class="w-[300px] block text-center" @click="open = true">
+                        {{ __('Import XLSX') }}
+                    </x-primary-button>
+                    <div x-data="{ openExport: false }">
+                    <x-primary-button class="w-[300px] block text-center" @click="openExport = true">
+                        {{ __('Export Excel') }}
+                    </x-primary-button>
+                </div>
 
                 {{-- Modal Export --}}
                 <div
@@ -183,9 +185,11 @@
         .custom-datatable-wrapper {
             background: white;
             border-radius: 8px;
-            /* ✅ Ini yang bikin scroll horizontal bekerja */
+            /* Kuncinya di sini: pastikan lebar maksimal adalah 100% dari sisa layar */
+            width: 100%;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
+            border: 1px solid #e5e7eb;
         }
 
         /* Pastikan tabel tidak memaksa lebar container */
@@ -194,7 +198,7 @@
             border-collapse: separate;
             border-spacing: 0;
             /* min-width supaya kolom tidak terlalu sempit saat discroll */
-            min-width: 1400px;
+            min-width: 1100px;
         }
 
         .custom-datatable thead tr {
@@ -216,6 +220,10 @@
         .custom-datatable tbody tr {
             border-bottom: 1px solid #f3f4f6;
             transition: background-color 0.15s ease;
+        }
+        /* Tambahan agar dropdown aksi tidak terpotong saat di ujung kanan */
+        .custom-datatable tbody td:last-child {
+            position: relative;
         }
 
         .custom-datatable tbody tr:hover {
