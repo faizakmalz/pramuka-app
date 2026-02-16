@@ -22,7 +22,7 @@ class KenaikanGolonganController extends Controller
     {
         $validated = $request->validate([
             'nomor_anggota'    => 'required|exists:anggotas,nomor_anggota',
-            'nomor_sertifikat' => 'nullable|string|unique:kenaikan_golongans,nomor_sertifikat',
+            'nomor_sertifikat' => 'nullable|string|unique:kenaikan_golongan,nomor_sertifikat',
             'golongan_awal'    => 'required|string',
             'golongan_tujuan'  => 'required|string|different:golongan_awal',
             'tanggal_kenaikan' => 'required|date',
