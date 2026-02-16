@@ -127,25 +127,25 @@
                 <div class="custom-datatable-wrapper">
                     <table id="guruTable" class="custom-datatable w-full text-left">
                         <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-4 py-2">Nomor Anggota <span class="dt-sort-icon ml-2 inline-block"></span></th>
-                                <th class="px-4 py-2">Nama <span class="dt-sort-icon ml-2 inline-block"></span></th>
-                                <th class="px-4 py-2">NIK <span class="dt-sort-icon ml-2 inline-block"></span></th>
-                                <th class="px-4 py-2">Jenis Kelamin <span class="dt-sort-icon ml-2 inline-block"></span></th>
-                                <th class="px-4 py-2">Agama <span class="dt-sort-icon ml-2 inline-block"></span></th>
-                                <th class="px-4 py-2">Golongan Pramuka <span class="dt-sort-icon ml-2 inline-block"></span></th>
-                                <th class="px-4 py-2">Golongan Darah <span class="dt-sort-icon ml-2 inline-block"></span></th>
-                                <th class="px-4 py-2">Alamat <span class="dt-sort-icon ml-2 inline-block"></span></th>
-                                <th class="px-4 py-2">Tempat Lahir <span class="dt-sort-icon ml-2 inline-block"></span></th>
-                                <th class="px-4 py-2">Tanggal Lahir <span class="dt-sort-icon ml-2 inline-block"></span></th>
-                                <th class="px-4 py-2">Email <span class="dt-sort-icon ml-2 inline-block"></span></th>
-                                <th class="px-4 py-2">No. Telp <span class="dt-sort-icon ml-2 inline-block"></span></th>
-                                <th class="px-4 py-2">Created At <span class="dt-sort-icon ml-2 inline-block"></span></th>
-                                <th class="px-4 py-2">Updated At <span class="dt-sort-icon ml-2 inline-block"></span></th>
-                                <th class="px-4 py-2 text-center">KTA</th>
-                                <th class="px-4 py-2 text-center">Aksi</th>
-                            </tr>
-                        </thead>
+                        <tr>
+                            <th class="px-4 py-3">Nomor Anggota</th>
+                            <th class="px-4 py-3">Nama</th>
+                            <th class="px-4 py-3">NIK</th>
+                            <th class="px-4 py-3">Jenis Kelamin</th>
+                            <th class="px-4 py-3">Agama</th>
+                            <th class="px-4 py-3">Golongan Pramuka</th>
+                            <th class="px-4 py-3">Golongan Darah</th>
+                            <th class="px-4 py-3">Alamat</th>
+                            <th class="px-4 py-3">Tempat Lahir</th>
+                            <th class="px-4 py-3">Tanggal Lahir</th>
+                            <th class="px-4 py-3">Email</th>
+                            <th class="px-4 py-3">No. Telp</th>
+                            <th class="px-4 py-3">Created At</th>
+                            <th class="px-4 py-3">Updated At</th>
+                            <th class="px-4 py-3 text-center">KTA</th>
+                            <th class="px-4 py-3 text-center">Aksi</th>
+                        </tr>
+                    </thead>
                         <tbody></tbody>
                     </table>
                     <div id="anggotaLoading" class="flex justify-center items-center py-6 text-gray-500">
@@ -180,15 +180,75 @@
 
 
     <style>
-        .custom-datatable-wrapper { background: white; border-radius: 8px; overflow: hidden; }
-        .custom-datatable { width: 100% !important; border-collapse: separate; border-spacing: 0; }
-        .custom-datatable thead tr { background: #f8fafc; border-bottom: 1px solid #e5e7eb; }
-        .custom-datatable thead th { padding: 16px 20px; text-align: left; font-weight: 600; font-size: 14px; color: #374151; white-space: nowrap; }
-        .custom-datatable tbody tr { border-bottom: 1px solid #f3f4f6; transition: background-color 0.15s ease; }
-        .custom-datatable tbody tr:hover { background-color: #f9fafb; }
-        .custom-datatable tbody td { padding: 16px 20px; font-size: 14px; color: #111827; vertical-align: middle; }
-        .dataTables_length, .dataTables_filter, .dataTables_info { display: none !important; }
-        .dataTables_wrapper .dataTables_paginate { margin-top: 20px; text-align: center; }
+        .custom-datatable-wrapper {
+            background: white;
+            border-radius: 8px;
+            /* ✅ Ini yang bikin scroll horizontal bekerja */
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Pastikan tabel tidak memaksa lebar container */
+        .custom-datatable {
+            width: 100% !important;
+            border-collapse: separate;
+            border-spacing: 0;
+            /* min-width supaya kolom tidak terlalu sempit saat discroll */
+            min-width: 1400px;
+        }
+
+        .custom-datatable thead tr {
+            background: #f8fafc;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .custom-datatable thead th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            color: #374151;
+            white-space: nowrap;
+            /* ✅ Sticky header opsional — uncomment kalau mau header ikut scroll vertikal */
+            /* position: sticky; top: 0; background: #f8fafc; z-index: 1; */
+        }
+
+        .custom-datatable tbody tr {
+            border-bottom: 1px solid #f3f4f6;
+            transition: background-color 0.15s ease;
+        }
+
+        .custom-datatable tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .custom-datatable tbody td {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #111827;
+            vertical-align: middle;
+        }
+
+        /* ✅ Override dataTables default scroll wrapper supaya tidak clash */
+        .dataTables_wrapper {
+            overflow: visible !important;
+        }
+
+        .dataTables_scrollBody {
+            overflow-x: auto !important;
+        }
+
+        .dataTables_length,
+        .dataTables_filter,
+        .dataTables_info {
+            display: none !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate {
+            margin-top: 20px;
+            text-align: center;
+        }
+
         .dataTables_wrapper .dataTables_paginate .paginate_button {
             border: none !important;
             background: #f3f4f6;
@@ -204,13 +264,29 @@
             background-color: #3b82f6 !important;
             color: white !important;
         }
+
         .dataTables_wrapper .dataTables_paginate .paginate_button.current {
             background-color: #2563eb !important;
             color: white !important;
             font-weight: 600;
         }
-        #guruTable th, #guruTable td { text-align: left !important; }
-        #guruTable thead th.sorting:after, #guruTable thead th.sorting_asc:after, #guruTable thead th.sorting_desc:after { display: none !important; }
+
+        #guruTable th,
+        #guruTable td {
+            text-align: left !important;
+        }
+
+        #guruTable thead th.sorting:after,
+        #guruTable thead th.sorting_asc:after,
+        #guruTable thead th.sorting_desc:after {
+            display: none !important;
+        }
+
+        /* Dropdown menu di dalam tabel tidak terpotong overflow */
+        .custom-datatable tbody td {
+            overflow: visible;
+            position: relative;
+        }
     </style>
 
     @vite(['resources/js/anggota.js'])

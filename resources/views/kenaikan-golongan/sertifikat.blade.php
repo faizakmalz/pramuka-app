@@ -144,13 +144,13 @@ body { font-family: 'Times New Roman', Times, serif; }
     <div class="intro">Yang bertanda tangan di bawah ini, Ketua Gugus Depan Gerakan Pramuka, menerangkan bahwa:</div>
     <div class="mname">{{ $kenaikan->anggota->nama }}</div>
     <table class="dtbl">
-      <tr><td class="lbl">Tempat / Tgl. Lahir</td><td class="sep">:</td><td>{{ $kenaikan->anggota->tempat_lahir }}, {{ CarbonCarbon::parse($kenaikan->anggota->tanggal_lahir)->translatedFormat("d F Y") }}</td></tr>
+      <tr><td class="lbl">Tempat / Tgl. Lahir</td><td class="sep">:</td><td>{{ $kenaikan->anggota->tempat_lahir }}, {{ Carbon::parse($kenaikan->anggota->tanggal_lahir)->translatedFormat("d F Y") }}</td></tr>
       <tr><td class="lbl">Nomor Anggota</td><td class="sep">:</td><td>{{ $kenaikan->anggota->nomor_anggota }}</td></tr>
       <tr><td class="lbl">Golongan Pramuka</td><td class="sep">:</td><td class="val-b">{{ $kenaikan->golongan_tujuan }}</td></tr>
     </table>
     <div class="para">
       Telah menyelesaikan SKU Pramuka <span class="hl">{{ $kenaikan->golongan_tujuan }}</span>
-      pada hari, tanggal <span class="hl">{{ CarbonCarbon::parse($kenaikan->tanggal_kenaikan)->translatedFormat("l, d F Y") }}</span>
+      pada hari, tanggal <span class="hl">{{ Carbon::parse($kenaikan->tanggal_kenaikan)->translatedFormat("l, d F Y") }}</span>
       dan dinyatakan naik golongan dari <span class="hl">{{ $kenaikan->golongan_awal }}</span>
       menjadi <span class="hl">{{ $kenaikan->golongan_tujuan }}</span> dalam Gerakan Pramuka,
       dengan memenuhi Syarat Kecakapan Umum (SKU) Pramuka Tingkat {{ $kenaikan->golongan_tujuan }}
@@ -179,7 +179,7 @@ body { font-family: 'Times New Roman', Times, serif; }
   </div>
   <div class="ttd">
     <div class="ttd-issued">Dikeluarkan di: <strong>Surabaya</strong></div>
-    <div class="ttd-issued">Pada Tanggal: <strong>{{ CarbonCarbon::parse($kenaikan->tanggal_kenaikan)->translatedFormat("d F Y") }}</strong></div>
+    <div class="ttd-issued">Pada Tanggal: <strong>{{ Carbon::parse($kenaikan->tanggal_kenaikan)->translatedFormat("d F Y") }}</strong></div>
     <div class="ttd-role">Ketua Gugus Depan,</div>
     <div class="ttd-space"></div>
     <div class="ttd-line"></div>
