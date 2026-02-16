@@ -44,7 +44,6 @@ class KenaikanGolonganController extends Controller
 
             // Generate sertifikat PDF
             $this->generateSertifikatPdf($kenaikan);
-
             return redirect()->back()->with('success', 'Kenaikan golongan berhasil disimpan dan sertifikat telah dibuat.');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
