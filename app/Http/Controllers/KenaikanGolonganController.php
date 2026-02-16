@@ -112,7 +112,7 @@ class KenaikanGolonganController extends Controller
             Storage::disk('public')->makeDirectory('sertifikat');
         }
 
-        $pdf = Pdf::loadView('sertifikat.kenaikan-golongan', compact('kenaikan'))
+        $pdf = Pdf::loadView('kenaikan-golongan.sertifikat', compact('kenaikan'))
             ->setPaper('a4', 'landscape');
 
         $filename = "sertifikat/sertifikat-{$kenaikan->nomor_sertifikat}.pdf";
