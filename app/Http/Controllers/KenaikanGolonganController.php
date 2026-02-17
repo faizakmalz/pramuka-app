@@ -67,14 +67,7 @@ class KenaikanGolonganController extends Controller
         }
 
         if (Storage::disk('public')->exists($filename)) {
-            return response()->make(
-                Storage::disk('public')->get($filename),
-                200,
-                [
-                    'Content-Type'        => 'application/pdf',
-                    'Content-Disposition' => 'inline; filename="sertifikat-' . $nomor_sertifikat . '.pdf"',
-                ]
-            );
+            return Storage::disk('public')->response($filename);
         }
 
         return redirect()->route('kenaikan')->with('error', 'Sertifikat tidak ditemukan.');

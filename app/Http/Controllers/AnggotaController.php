@@ -22,76 +22,51 @@ class AnggotaController extends Controller
     public function getAnggotas(Request $request)
     {
         if ($request->ajax()) {
-            $query = Anggota::query()->with([
-                // Eager load kenaikan terbaru (1 record per anggota)
-                'kenaikanTerbaru',
+            // OPTIMASI 1: Pilih kolom tertentu saja (jangan select *)
+            $query = Anggota::query()->select([
+                'nomor_anggota', 
+                'nama', 
+                'nik',
+                'jenis_kelamin',
+                'golongan_darah',
+                'tempat_lahir',
+                'tanggal_lahir',
+                'alamat',
+                'email', 
+                'no_telp', 
+                'golongan_pramuka', 
+                'created_at'
+            ])->with([
+                // OPTIMASI 2: Eager Load relasi hanya kolom yang dibutuhkan
+'               kenaikanTerbaru' => function($q) {
+                    $q->select('id', 'nomor_anggota', 'nomor_sertifikat', 'tanggal_kenaikan', 'golongan_awal', 'golongan_tujuan');
+                }           
             ]);
 
-            return DataTables::of($query)
-                ->filter(function ($q) use ($request) {
-                    if ($request->golongan_pramuka) {
-                        $q->where('golongan_pramuka', $request->golongan_pramuka);
-                    }
-
-                    if (!empty($request->search['value'])) {
-                        $search = $request->search['value'];
-                        $q->where(function ($sub) use ($search) {
-                            $sub->where('nama', 'like', "%{$search}%")
-                                ->orWhere('email', 'like', "%{$search}%")
-                                ->orWhere('no_telp', 'like', "%{$search}%");
-                        });
-                    }
-                })
-                ->editColumn('created_at', function ($row) {
-                    return $row->created_at ? $row->created_at->format('d-m-Y H:i') : '';
-                })
-                ->editColumn('updated_at', function ($row) {
-                    return $row->updated_at ? $row->updated_at->format('d-m-Y H:i') : '';
-                })
-                ->addColumn('sertifikat_terbaru', function ($row) {
-                    /** @var KenaikanGolongan|null $kenaikan */
-                    $kenaikan = $row->kenaikanTerbaru;
-
-                    if (!$kenaikan || !$kenaikan->nomor_sertifikat) {
-                        return '<span class="text-gray-400 text-xs italic">Belum ada</span>';
-                    }
-
-                    $nomorSertifikat = $kenaikan->nomor_sertifikat;
-                    $tanggal         = $kenaikan->tanggal_kenaikan
-                        ? $kenaikan->tanggal_kenaikan->format('d-m-Y')
-                        : '';
-
-                    $urlShow     = route('kenaikan.sertifikat.show', $nomorSertifikat);
-                    $urlDownload = route('kenaikan.sertifikat.download', $nomorSertifikat);
-
-                    return <<<HTML
-                        <div class="flex flex-col gap-1">
-                            <span class="font-mono text-xs text-gray-700">{$nomorSertifikat}</span>
-                            <span class="text-xs text-gray-400">{$tanggal}</span>
-                            <div class="flex gap-1 mt-0.5">
-                                <a href="{$urlShow}" target="_blank"
-                                   class="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded bg-blue-50 text-blue-700 hover:bg-blue-100 transition">
-                                    Lihat
-                                </a>
-                                <a href="{$urlDownload}"
-                                   class="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded bg-green-50 text-green-700 hover:bg-green-100 transition">
-                                    Unduh
-                                </a>
-                            </div>
-                        </div>
-                    HTML;
-                })
-                ->rawColumns(['sertifikat_terbaru'])
-                ->make(true);
+           return DataTables::of($query)
+        // Tambahkan kolom virtual untuk Sertifikat
+            ->addColumn('sertifikat_link', function($row) {
+                $kenaikan = $row->kenaikanTerbaru;
+                if (!$kenaikan) return null;
+                
+                return [
+                    'nomor' => $kenaikan->nomor_sertifikat,
+                    'url_show' => route('kenaikan.sertifikat.show', $kenaikan->nomor_sertifikat),
+                    'url_download' => route('kenaikan.sertifikat.download', $kenaikan->nomor_sertifikat)
+                ];
+            })
+            ->make(true);
         }
     }
 
     public function getGolonganPramuka()
     {
-        $golonganpramuka = Anggota::select('golongan_pramuka')
-            ->whereNotNull('golongan_pramuka')
-            ->distinct()
-            ->pluck('golongan_pramuka');
+        // Simpan hasil query di cache selama 60 menit
+        $golonganpramuka = cache()->remember('list_golongan_pramuka', 3600, function () {
+            return Anggota::whereNotNull('golongan_pramuka')
+                ->distinct()
+                ->pluck('golongan_pramuka');
+        });
 
         return response()->json($golonganpramuka);
     }
@@ -140,14 +115,11 @@ class AnggotaController extends Controller
         }
 
         if (Storage::disk('public')->exists($filename)) {
-            return response()->make(
-                Storage::disk('public')->get($filename),
-                200,
-                [
-                    'Content-Type'        => 'application/pdf',
-                    'Content-Disposition' => 'inline; filename="card-' . $nomor_anggota . '.pdf"',
-                ]
-            );
+        // Cara ini jauh lebih hemat RAM (streaming)
+            return Storage::disk('public')->response($filename, "card-{$nomor_anggota}.pdf", [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline'
+            ]);
         }
 
         return redirect()->route('anggota')->with('error', 'KTA not found.');

@@ -114,6 +114,32 @@ $(function () {
                     </a>
                 `
             },
+            // Tambahkan ini di dalam array columns: [ ... ]
+            {
+                data: 'sertifikat_link',
+                name: 'sertifikat_link',
+                orderable: false,
+                searchable: false,
+                render: (data) => {
+                    if (!data) return `<span class="text-gray-400 text-xs italic">Belum ada</span>`;
+
+                    return `
+                        <div class="flex flex-col gap-1">
+                            <span class="font-mono text-[10px] font-bold text-gray-700">${data.nomor}</span>
+                            <div class="flex gap-1">
+                                <a href="${data.url_show}" target="_blank"
+                                class="px-2 py-0.5 bg-blue-50 text-blue-600 border border-blue-200 rounded text-[10px] hover:bg-blue-100 transition">
+                                Lihat
+                                </a>
+                                <a href="${data.url_download}"
+                                class="px-2 py-0.5 bg-green-50 text-green-600 border border-green-200 rounded text-[10px] hover:bg-green-100 transition">
+                                Unduh
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }
+            },
             // Kolom Aksi
             {
                 data: 'nomor_anggota',
