@@ -21,6 +21,7 @@ class AnggotaController extends Controller
 
     public function getAnggotas(Request $request)
     {
+        \DB::connection()->enableQueryLog();
         if ($request->ajax()) {
             // OPTIMASI 1: Pilih kolom tertentu saja (jangan select *)
             $query = Anggota::query()->select([
@@ -36,12 +37,9 @@ class AnggotaController extends Controller
                 'no_telp', 
                 'golongan_pramuka', 
                 'created_at'
-            ])->with([
-                // OPTIMASI 2: Eager Load relasi hanya kolom yang dibutuhkan
-'               kenaikanTerbaru' => function($q) {
-                    $q->select('id', 'nomor_anggota', 'nomor_sertifikat', 'tanggal_kenaikan', 'golongan_awal', 'golongan_tujuan');
-                }           
-            ]);
+            ])->with('kenaikanTerbaru'); // Eager load kenaikan terbaru untuk menghindari N+1
+
+            \Log::info(\DB::getQueryLog());
 
            return DataTables::of($query)
         // Tambahkan kolom virtual untuk Sertifikat
