@@ -21,9 +21,7 @@ class AnggotaController extends Controller
 
     public function getAnggotas(Request $request)
     {
-        \DB::connection()->enableQueryLog();
         if ($request->ajax()) {
-            // OPTIMASI 1: Pilih kolom tertentu saja (jangan select *)
             $query = Anggota::query()->select([
                 'nomor_anggota', 
                 'nama', 
@@ -37,29 +35,25 @@ class AnggotaController extends Controller
                 'no_telp', 
                 'golongan_pramuka', 
                 'created_at'
-            ])->with('kenaikanTerbaru'); // Eager load kenaikan terbaru untuk menghindari N+1
+            ])->with('kenaikanTerbaru');
 
-            \Log::info(\DB::getQueryLog());
-
-           return DataTables::of($query)
-        // Tambahkan kolom virtual untuk Sertifikat
-            ->addColumn('sertifikat_link', function($row) {
-                $kenaikan = $row->kenaikanTerbaru;
-                if (!$kenaikan) return null;
-                
-                return [
-                    'nomor' => $kenaikan->nomor_sertifikat,
-                    'url_show' => route('kenaikan.sertifikat.show', $kenaikan->nomor_sertifikat),
-                    'url_download' => route('kenaikan.sertifikat.download', $kenaikan->nomor_sertifikat)
-                ];
-            })
-            ->make(true);
+            return DataTables::of($query)
+                ->addColumn('sertifikat_link', function($row) {
+                    $kenaikan = $row->kenaikanTerbaru;
+                    if (!$kenaikan) return null;
+                    
+                    return [
+                        'nomor' => $kenaikan->nomor_sertifikat,
+                        'url_show' => route('kenaikan.sertifikat.show', $kenaikan->nomor_sertifikat),
+                        'url_download' => route('kenaikan.sertifikat.download', $kenaikan->nomor_sertifikat)
+                    ];
+                })
+                ->make(true);
         }
     }
 
     public function getGolonganPramuka()
     {
-        // Simpan hasil query di cache selama 60 menit
         $golonganpramuka = cache()->remember('list_golongan_pramuka', 3600, function () {
             return Anggota::whereNotNull('golongan_pramuka')
                 ->distinct()
@@ -91,14 +85,36 @@ class AnggotaController extends Controller
             'no_telp'         => 'nullable|string|max:20',
         ]);
 
+        // ✅ 1. SIMPAN ANGGOTA DULU (ini prioritas utama)
         $anggota = Anggota::create($request->all());
 
-        // Generate PDF kartu anggota
-        $pdf = Pdf::loadView('cards.member-card', compact('anggota'))
-            ->setPaper('a5', 'landscape');
+        // ✅ 2. TRY GENERATE PDF - tapi jangan sampai block proses create
+        try {
+            // Pastikan folder cards ada
+            if (!Storage::disk('public')->exists('cards')) {
+                Storage::disk('public')->makeDirectory('cards');
+            }
 
-        $filename = "cards/card-{$anggota->nomor_anggota}.pdf";
-        Storage::disk('public')->put($filename, $pdf->output());
+            $pdf = Pdf::loadView('cards.member-card', compact('anggota'))
+                ->setPaper('a5', 'landscape');
+
+            $filename = "cards/card-{$anggota->nomor_anggota}.pdf";
+            Storage::disk('public')->put($filename, $pdf->output());
+            
+            \Log::info('KTA PDF generated', ['anggota' => $anggota->nomor_anggota]);
+            
+        } catch (\Exception $e) {
+            // ✅ LOG ERROR tapi JANGAN rollback anggota
+            \Log::error('Failed to generate KTA PDF', [
+                'anggota' => $anggota->nomor_anggota,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            // ✅ Beri warning ke user bahwa PDF gagal
+            return redirect()->route('anggota')
+                ->with('warning', 'Data anggota berhasil ditambahkan, namun kartu belum bisa digenerate. Silakan generate ulang dari menu.');
+        }
 
         return redirect()->route('anggota')
             ->with('success', 'Data anggota berhasil ditambahkan.');
@@ -108,19 +124,45 @@ class AnggotaController extends Controller
     {
         $filename = "cards/card-{$nomor_anggota}.pdf";
 
-        if (!Storage::disk('public')->exists('cards')) {
-            Storage::disk('public')->makeDirectory('cards');
+        // ✅ GENERATE ON-DEMAND kalau file belum ada
+        if (!Storage::disk('public')->exists($filename)) {
+            \Log::info('KTA not found, generating on-demand', ['anggota' => $nomor_anggota]);
+            
+            try {
+                $anggota = Anggota::where('nomor_anggota', $nomor_anggota)->firstOrFail();
+                
+                // Pastikan folder ada
+                if (!Storage::disk('public')->exists('cards')) {
+                    Storage::disk('public')->makeDirectory('cards');
+                }
+
+                $pdf = Pdf::loadView('cards.member-card', compact('anggota'))
+                    ->setPaper('a5', 'landscape');
+
+                Storage::disk('public')->put($filename, $pdf->output());
+                
+                \Log::info('KTA generated on-demand successfully', ['anggota' => $nomor_anggota]);
+                
+            } catch (\Exception $e) {
+                \Log::error('Failed to generate KTA on-demand', [
+                    'anggota' => $nomor_anggota,
+                    'error' => $e->getMessage()
+                ]);
+                
+                return redirect()->route('anggota')
+                    ->with('error', 'Gagal generate KTA: ' . $e->getMessage());
+            }
         }
 
+        // ✅ Serve PDF kalau sudah ada
         if (Storage::disk('public')->exists($filename)) {
-        // Cara ini jauh lebih hemat RAM (streaming)
             return Storage::disk('public')->response($filename, "card-{$nomor_anggota}.pdf", [
                 'Content-Type' => 'application/pdf',
                 'Content-Disposition' => 'inline'
             ]);
         }
 
-        return redirect()->route('anggota')->with('error', 'KTA not found.');
+        return redirect()->route('anggota')->with('error', 'KTA tidak ditemukan.');
     }
 
     public function import(Request $request)
@@ -129,15 +171,12 @@ class AnggotaController extends Controller
             'file' => 'required|mimes:xlsx,xls,csv',
         ]);
 
-        // Excel::import(new AnggotaImport, $request->file('file'));
-
         return redirect()->back()->with('success', 'Data anggota berhasil diimport.');
     }
 
     public function export(Request $request)
     {
         $golongan = $request->get('golongan_pramuka');
-
         return (new AnggotaExport($golongan))->download();
     }
 
@@ -174,7 +213,7 @@ class AnggotaController extends Controller
     public function generateCard(Anggota $anggota)
     {
         $pdf = Pdf::loadView('cards.member-card', compact('anggota'))
-            ->setPaper('a7', 'landscape');
+            ->setPaper('a5', 'landscape');
 
         return $pdf->download("member-card-{$anggota->id}.pdf");
     }
@@ -198,5 +237,37 @@ class AnggotaController extends Controller
             'success' => false,
             'message' => 'Data anggota tidak ditemukan.',
         ]);
+    }
+    
+    // ✅ BONUS: Method untuk regenerate KTA manual kalau perlu
+    public function regenerateKta($nomor_anggota)
+    {
+        try {
+            $anggota = Anggota::where('nomor_anggota', $nomor_anggota)->firstOrFail();
+            
+            if (!Storage::disk('public')->exists('cards')) {
+                Storage::disk('public')->makeDirectory('cards');
+            }
+
+            $pdf = Pdf::loadView('cards.member-card', compact('anggota'))
+                ->setPaper('a5', 'landscape');
+
+            $filename = "cards/card-{$anggota->nomor_anggota}.pdf";
+            Storage::disk('public')->put($filename, $pdf->output());
+            
+            \Log::info('KTA regenerated manually', ['anggota' => $nomor_anggota]);
+            
+            return redirect()->back()
+                ->with('success', 'KTA berhasil digenerate ulang.');
+                
+        } catch (\Exception $e) {
+            \Log::error('Failed to regenerate KTA', [
+                'anggota' => $nomor_anggota,
+                'error' => $e->getMessage()
+            ]);
+            
+            return redirect()->back()
+                ->with('error', 'Gagal generate KTA: ' . $e->getMessage());
+        }
     }
 }
