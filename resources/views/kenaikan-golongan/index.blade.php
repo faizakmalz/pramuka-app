@@ -37,35 +37,61 @@
                     @csrf
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                        <!-- Nama Anggota -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Anggota</label>
-                            <select id="anggotaSelect" name="nomor_anggota"
-                                    class="border-gray-300 rounded-md shadow-sm w-full focus:ring-2 focus:ring-[#610a08]">
-                                <option value="">-- Pilih Anggota --</option>
-                                @foreach($anggota as $a)
-                                    <option value="{{ $a->nomor_anggota }}"
-                                            data-golongan="{{ $a->golongan_pramuka }}">
-                                        {{ $a->nama }} ({{ $a->nomor_anggota }})
-                                    </option>
-                                @endforeach
-                            </select>
+                        <!-- Nama Anggota (Custom Dropdown) -->
+                        <div x-data="{
+                            open: false,
+                            selected: '',
+                            selectedName: '',
+                            selectedGolongan: '',
+                            anggotaList: @js($anggota->map(fn($a) => [
+                                'nomor' => $a->nomor_anggota,
+                                'nama' => $a->nama,
+                                'golongan' => $a->golongan_pramuka
+                            ])),
+                            selectAnggota(item) {
+                                this.selected = item.nomor;
+                                this.selectedName = item.nama + ' (' + item.nomor + ')';
+                                this.selectedGolongan = item.golongan;
+                                this.open = false;
+                                document.getElementById('golonganSekarang').value = item.golongan;
+                            }
+                        }">
+                            <label class="block text-gray-600 font-bold mb-2">Nama Anggota</label>
+                            <div class="relative">
+                                <button type="button" @click="open = !open"
+                                    class="w-full border border-gray-400 rounded px-3 py-2 flex justify-between items-center bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#610a08]">
+                                    <span x-text="selectedName || '-- Pilih Anggota --'"></span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </button>
+                                <div x-show="open" @click.away="open = false"
+                                    class="absolute mt-1 w-full bg-white border border-gray-400 rounded shadow-lg max-h-60 overflow-y-auto z-10">
+                                    <template x-for="item in anggotaList" :key="item.nomor">
+                                        <button type="button" @click="selectAnggota(item)"
+                                            class="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
+                                            x-text="item.nama + ' (' + item.nomor + ')'"></button>
+                                    </template>
+                                </div>
+                            </div>
+                            <input type="hidden" name="nomor_anggota" :value="selected">
                         </div>
 
                         <!-- Golongan Sekarang -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Golongan Sekarang</label>
+                            <label class="block text-gray-600 font-bold mb-2">Golongan Sekarang</label>
                             <input id="golonganSekarang" type="text" name="golongan_awal"
-                                   class="border-gray-300 rounded-md shadow-sm w-full bg-gray-100 cursor-not-allowed"
+                                   class="w-full border border-gray-400 rounded px-3 py-2 text-gray-600 bg-gray-100 cursor-not-allowed"
                                    placeholder="Otomatis terisi saat memilih anggota"
                                    readonly>
                         </div>
 
                         <!-- Golongan Tujuan -->
-                        <div class="mb-4" x-data="{
+                        <div x-data="{
+                            openGol: false,
+                            openTingkat: false,
                             golongan: '{{ old('golongan_pramuka') }}',
                             tingkat: '',
-                            tingkatOptions: [],
                             golonganOptions: {
                                 'Siaga': ['Mula', 'Bantu', 'Tata'],
                                 'Penggalang': ['Ramu', 'Rakit', 'Terap'],
@@ -73,66 +99,92 @@
                                 'Pandega': ['Pandega'],
                                 'Pembina': ['Pembina']
                             },
-                            init() {
-                                this.updateTingkatOptions();
+                            get tingkatOptions() {
+                                return this.golonganOptions[this.golongan] || [];
                             },
-                            updateTingkatOptions() {
-                                this.tingkatOptions = this.golonganOptions[this.golongan] || [];
+                            selectGolongan(val) {
+                                this.golongan = val;
                                 this.tingkat = '';
+                                this.openGol = false;
                             },
-                            combineGolonganTingkat() {
+                            get combined() {
                                 return this.golongan && this.tingkat ? `${this.golongan} - ${this.tingkat}` : '';
                             }
                         }">
-                            <label for="golongan_pramuka" class="block text-sm font-medium text-gray-700 mb-1">Golongan Tujuan</label>
-                            <select name="golongan_pramuka" id="golongan_pramuka"
-                                    x-model="golongan" @change="updateTingkatOptions()"
-                                    class="w-full border rounded px-3 py-2 @error('golongan_pramuka') border-red-500 @enderror focus:ring-2 focus:ring-[#610a08]">
-                                <option value="">-- Pilih Golongan --</option>
-                                <template x-for="(tingkatList, golongan) in golonganOptions" :key="golongan">
-                                    <option :value="golongan" x-text="golongan"></option>
-                                </template>
-                            </select>
-                            @error('golongan_pramuka')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
+                            <label class="block text-gray-600 font-bold mb-2">Golongan Tujuan</label>
+                            <div class="relative mb-4">
+                                <button type="button" @click="openGol = !openGol"
+                                    class="w-full border border-gray-400 rounded px-3 py-2 flex justify-between items-center bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#610a08] @error('golongan_pramuka') border-red-500 @enderror">
+                                    <span x-text="golongan || '-- Pilih Golongan --'"></span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </button>
+                                <div x-show="openGol" @click.away="openGol = false"
+                                    class="absolute mt-1 w-full bg-white border border-gray-400 rounded shadow-lg max-h-40 overflow-y-auto z-10">
+                                    <template x-for="(opts, gol) in golonganOptions" :key="gol">
+                                        <button type="button" @click="selectGolongan(gol)"
+                                            class="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
+                                            x-text="gol"></button>
+                                    </template>
+                                </div>
+                            </div>
+                            @error('golongan_pramuka')<p class="text-red-500 text-sm -mt-3 mb-2">{{ $message }}</p>@enderror
 
-                            <label for="tingkat_pramuka" class="block text-sm font-medium text-gray-700 mb-1 mt-4">Tingkat Tujuan</label>
-                            <select name="tingkat_pramuka" id="tingkat_pramuka"
-                                    x-model="tingkat"
-                                    class="w-full border rounded px-3 py-2 @error('tingkat_pramuka') border-red-500 @enderror focus:ring-2 focus:ring-[#610a08]">
-                                <option value="">-- Pilih Tingkat --</option>
-                                <template x-for="tingkat in tingkatOptions" :key="tingkat">
-                                    <option :value="tingkat" x-text="tingkat"></option>
-                                </template>
-                            </select>
-                            @error('tingkat_pramuka')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
+                            <label class="block text-gray-600 font-bold mb-2">Tingkat Tujuan</label>
+                            <div class="relative">
+                                <button type="button" @click="if(tingkatOptions.length) openTingkat = !openTingkat"
+                                    :class="tingkatOptions.length ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'"
+                                    class="w-full border border-gray-400 rounded px-3 py-2 flex justify-between items-center bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#610a08]">
+                                    <span x-text="tingkat || '-- Pilih Tingkat --'"></span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </button>
+                                <div x-show="openTingkat" @click.away="openTingkat = false"
+                                    class="absolute mt-1 w-full bg-white border border-gray-400 rounded shadow-lg max-h-40 overflow-y-auto z-10">
+                                    <template x-for="opt in tingkatOptions" :key="opt">
+                                        <button type="button" @click="tingkat = opt; openTingkat = false"
+                                            class="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
+                                            x-text="opt"></button>
+                                    </template>
+                                </div>
+                            </div>
+                            @error('tingkat_pramuka')<p class="text-red-500 text-sm mt-1">{{ $message }}</p>@enderror
 
-                            <input type="hidden" name="golongan_tujuan" :value="combineGolonganTingkat()">
+                            <input type="hidden" name="golongan_tujuan" :value="combined">
                         </div>
 
                         <!-- Tanggal Kenaikan -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Kenaikan</label>
+                            <label class="block text-gray-600 font-bold mb-2">Tanggal Kenaikan</label>
                             <input type="date" name="tanggal_kenaikan"
-                                   class="border-gray-300 rounded-md shadow-sm w-full focus:ring-2 focus:ring-[#610a08]"
+                                   class="w-full border border-gray-400 rounded px-3 py-2 text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-[#610a08]"
                                    value="{{ old('tanggal_kenaikan') }}">
+                        </div>
+
+                        <!-- Tempat Ditetapkan -->
+                        <div>
+                            <label class="block text-gray-600 font-bold mb-2">Tempat Ditetapkan</label>
+                            <input type="text" name="tempat_ditetapkan"
+                                class="w-full border border-gray-400 rounded px-3 py-2 text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-[#610a08] @error('tempat_ditetapkan') border-red-500 @enderror"
+                                placeholder="Contoh: Surabaya"
+                                value="{{ old('tempat_ditetapkan', 'Surabaya') }}">
+                            @error('tempat_ditetapkan')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- Nomor Sertifikat -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                            <label class="block text-gray-600 font-bold mb-2">
                                 Nomor Sertifikat
                                 <span class="text-gray-400 font-normal text-xs ml-1">(kosongkan untuk generate otomatis)</span>
                             </label>
-                            <div class="flex gap-2">
-                                <input type="text" name="nomor_sertifikat" id="nomorSertifikat"
-                                       class="border-gray-300 rounded-md shadow-sm w-full focus:ring-2 focus:ring-[#610a08] font-mono @error('nomor_sertifikat') border-red-500 @enderror"
-                                       placeholder="Contoh: SERT-2025-0001"
-                                       value="{{ old('nomor_sertifikat') }}">
-                            </div>
+                            <input type="text" name="nomor_sertifikat" id="nomorSertifikat"
+                                   class="w-full border border-gray-400 rounded px-3 py-2 text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-[#610a08] font-mono @error('nomor_sertifikat') border-red-500 @enderror"
+                                   placeholder="Contoh: SERT-2025-0001"
+                                   value="{{ old('nomor_sertifikat') }}">
                             @error('nomor_sertifikat')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -141,9 +193,9 @@
 
                         <!-- Catatan -->
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Catatan <span class="text-gray-400 font-normal">(opsional)</span></label>
+                            <label class="block text-gray-600 font-bold mb-2">Catatan <span class="text-gray-400 font-normal">(opsional)</span></label>
                             <textarea name="catatan" rows="3"
-                                      class="border-gray-300 rounded-md shadow-sm w-full focus:ring-2 focus:ring-[#610a08]"
+                                      class="w-full border border-gray-400 rounded px-3 py-2 text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-[#610a08]"
                                       placeholder="Catatan tambahan mengenai kenaikan golongan ini...">{{ old('catatan') }}</textarea>
                         </div>
                     </div>
@@ -167,23 +219,24 @@
             <div class="bg-white overflow-hidden shadow-md sm:rounded-lg mt-8 p-6">
                 <h2 class="font-bold text-lg mb-4">Riwayat Kenaikan Golongan</h2>
                 <div class="overflow-x-auto">
-                    <table id="kenaikanTable" class="custom-datatable w-full text-left text-sm">
+                    <table id="kenaikanTable" class="w-full text-left text-sm">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-4 py-3 font-semibold text-gray-600">Nama</th>
-                                <th class="px-4 py-3 font-semibold text-gray-600">No. Anggota</th>
-                                <th class="px-4 py-3 font-semibold text-gray-600">Dari</th>
-                                <th class="px-4 py-3 font-semibold text-gray-600">Ke</th>
-                                <th class="px-4 py-3 font-semibold text-gray-600">Tanggal</th>
-                                <th class="px-4 py-3 font-semibold text-gray-600">No. Sertifikat</th>
-                                <th class="px-4 py-3 font-semibold text-gray-600">Catatan</th>
-                                <th class="px-4 py-3 font-semibold text-gray-600 text-center">Sertifikat</th>
+                                <th class="px-4 py-3 font-semibold text-gray-700">Nama</th>
+                                <th class="px-4 py-3 font-semibold text-gray-700">No. Anggota</th>
+                                <th class="px-4 py-3 font-semibold text-gray-700">Dari</th>
+                                <th class="px-4 py-3 font-semibold text-gray-700">Ke</th>
+                                <th class="px-4 py-3 font-semibold text-gray-700">Tanggal</th>
+                                <th class="px-4 py-3 font-semibold text-gray-700">No. Sertifikat</th>
+                                <th class="px-4 py-3 font-semibold text-gray-700">Tempat</th>
+                                <th class="px-4 py-3 font-semibold text-gray-700">Catatan</th>
+                                <th class="px-4 py-3 font-semibold text-gray-700 text-center">Sertifikat</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($riwayat as $item)
                                 <tr class="border-t hover:bg-gray-50 transition">
-                                    <td class="px-4 py-3 font-medium">{{ $item->anggota->nama }}</td>
+                                    <td class="px-4 py-3 font-medium text-gray-800">{{ $item->anggota->nama }}</td>
                                     <td class="px-4 py-3 text-gray-500 font-mono text-xs">{{ $item->nomor_anggota }}</td>
                                     <td class="px-4 py-3">
                                         <span class="px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs font-medium">
@@ -195,7 +248,7 @@
                                             {{ $item->golongan_tujuan }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-3 text-gray-600">
+                                    <td class="px-4 py-3 text-gray-600 whitespace-nowrap">
                                         {{ \Carbon\Carbon::parse($item->tanggal_kenaikan)->format('d-m-Y') }}
                                     </td>
                                     <td class="px-4 py-3">
@@ -205,7 +258,10 @@
                                             <span class="text-gray-400 text-xs italic">—</span>
                                         @endif
                                     </td>
-                                    <td class="px-4 py-3 text-gray-500 max-w-xs truncate">
+                                    <td class="px-4 py-3 text-gray-600 text-xs">
+                                        {{ $item->tempat_ditetapkan ?? '—' }}
+                                    </td>
+                                    <td class="px-4 py-3 text-gray-500 text-xs max-w-xs truncate">
                                         {{ $item->catatan ?? '—' }}
                                     </td>
                                     <td class="px-4 py-3 text-center">
@@ -245,18 +301,4 @@
             </div>
         </div>
     </div>
-
-    @push('scripts')
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const anggotaSelect = document.getElementById('anggotaSelect');
-            const golonganSekarang = document.getElementById('golonganSekarang');
-
-            anggotaSelect.addEventListener('change', function () {
-                const selected = this.options[this.selectedIndex];
-                golonganSekarang.value = selected.getAttribute('data-golongan') || '';
-            });
-        });
-    </script>
-    @endpush
 </x-app-layout>

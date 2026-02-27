@@ -21,12 +21,13 @@ class KenaikanGolonganController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nomor_anggota'    => 'required|exists:anggotas,nomor_anggota',
-            'nomor_sertifikat' => 'nullable|string|unique:kenaikan_golongan,nomor_sertifikat',
-            'golongan_awal'    => 'required|string',
-            'golongan_tujuan'  => 'required|string|different:golongan_awal',
-            'tanggal_kenaikan' => 'required|date',
-            'catatan'          => 'nullable|string',
+            'nomor_anggota'      => 'required|exists:anggotas,nomor_anggota',
+            'nomor_sertifikat'   => 'nullable|string|unique:kenaikan_golongan,nomor_sertifikat',
+            'golongan_awal'      => 'required|string',
+            'golongan_tujuan'    => 'required|string|different:golongan_awal',
+            'tanggal_kenaikan'   => 'required|date',
+            'tempat_penetapan'  => 'required|string',
+            'catatan'            => 'nullable|string',
         ]);
 
         // Auto-generate nomor sertifikat jika tidak diisi
@@ -44,21 +45,18 @@ class KenaikanGolonganController extends Controller
 
             // Generate sertifikat PDF
             $this->generateSertifikatPdf($kenaikan);
+            
             return redirect()->back()->with('success', 'Kenaikan golongan berhasil disimpan dan sertifikat telah dibuat.');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
         }
     }
 
-    /**
-     * Tampilkan sertifikat PDF di browser.
-     */
     public function showSertifikat($nomor_sertifikat)
     {
         $filename = "sertifikat/sertifikat-{$nomor_sertifikat}.pdf";
 
         if (!Storage::disk('public')->exists($filename)) {
-            // Coba regenerate jika file tidak ada
             $kenaikan = KenaikanGolongan::where('nomor_sertifikat', $nomor_sertifikat)
                 ->with('anggota')
                 ->firstOrFail();
@@ -70,12 +68,9 @@ class KenaikanGolonganController extends Controller
             return Storage::disk('public')->response($filename);
         }
 
-        return redirect()->route('kenaikan')->with('error', 'Sertifikat tidak ditemukan.');
+        return redirect()->route('kenaikan.index')->with('error', 'Sertifikat tidak ditemukan.');
     }
 
-    /**
-     * Download sertifikat PDF.
-     */
     public function downloadSertifikat($nomor_sertifikat)
     {
         $filename = "sertifikat/sertifikat-{$nomor_sertifikat}.pdf";
@@ -91,9 +86,6 @@ class KenaikanGolonganController extends Controller
         return Storage::disk('public')->download($filename, "Sertifikat-{$nomor_sertifikat}.pdf");
     }
 
-    /**
-     * Helper: generate dan simpan PDF sertifikat ke storage.
-     */
     private function generateSertifikatPdf(KenaikanGolongan $kenaikan): void
     {
         if (!$kenaikan->relationLoaded('anggota')) {

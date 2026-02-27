@@ -17,6 +17,7 @@ class KenaikanGolongan extends Model
         'golongan_tujuan',
         'tanggal_kenaikan',
         'nomor_sertifikat',
+        'tempat_penetapan',
         'catatan',
     ];
 
