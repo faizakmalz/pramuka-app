@@ -166,11 +166,11 @@
                         <!-- Tempat Ditetapkan -->
                         <div>
                             <label class="block text-gray-600 font-bold mb-2">Tempat Ditetapkan</label>
-                            <input type="text" name="tempat_ditetapkan"
-                                class="w-full border border-gray-400 rounded px-3 py-2 text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-[#610a08] @error('tempat_ditetapkan') border-red-500 @enderror"
+                            <input type="text" name="tempat_penetapan"
+                                class="w-full border border-gray-400 rounded px-3 py-2 text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-[#610a08] @error('tempat_penetapan') border-red-500 @enderror"
                                 placeholder="Contoh: Surabaya"
-                                value="{{ old('tempat_ditetapkan', 'Surabaya') }}">
-                            @error('tempat_ditetapkan')
+                                value="{{ old('tempat_penetapan', 'Surabaya') }}">
+                            @error('tempat_penetapan')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
@@ -259,7 +259,7 @@
                                         @endif
                                     </td>
                                     <td class="px-4 py-3 text-gray-600 text-xs">
-                                        {{ $item->tempat_ditetapkan ?? '—' }}
+                                        {{ $item->tempat_penetapan ?? '—' }}
                                     </td>
                                     <td class="px-4 py-3 text-gray-500 text-xs max-w-xs truncate">
                                         {{ $item->catatan ?? '—' }}
