@@ -198,22 +198,44 @@ $(function () {
                 const $button = $(this);
                 const $menu = $button.siblings('.dropdown-menu');
                 const buttonRect = $button[0].getBoundingClientRect();
-                
-                // Hide other dropdowns
-                $('.dropdown-menu').not($menu).addClass('hidden');
-                
-                // Toggle current dropdown
-                $menu.toggleClass('hidden');
-                
-                // Position dropdown
-                if (!$menu.hasClass('hidden')) {
-                    $menu.css({
+
+                // Sembunyikan semua dropdown lain yang sudah dipindah ke body
+                $('#floating-dropdown').remove();
+
+                if ($menu.data('open')) {
+                    $menu.data('open', false);
+                    return;
+                }
+
+                // Clone dan pindah ke body biar tidak terclip tabel
+                const $floatingMenu = $menu.clone();
+                $floatingMenu
+                    .attr('id', 'floating-dropdown')
+                    .removeClass('hidden')
+                    .css({
                         position: 'fixed',
                         top: buttonRect.bottom + 5 + 'px',
                         left: (buttonRect.right - 140) + 'px',
                         zIndex: 9999
-                    });
-                }
+                    })
+                    .appendTo('body');
+
+                $menu.data('open', true);
+
+                // Re-bind delete confirm pada clone
+                $floatingMenu.find('.delete-form').on('submit', function (e) {
+                    e.preventDefault();
+                    if (confirm('Yakin ingin menghapus anggota ini?')) {
+                        this.submit();
+                    }
+                });
+            });
+
+            $(document).off('click.dropdown').on('click.dropdown', function () {
+                $('#floating-dropdown').remove();
+                $('.action-btn').each(function() {
+                    $(this).siblings('.dropdown-menu').data('open', false);
+                });
             });
 
             $(document).off('click.dropdown').on('click.dropdown', function () {
