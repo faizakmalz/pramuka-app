@@ -77,7 +77,7 @@ class AnggotaController extends Controller
             'jenis_kelamin'   => 'required|string',
             'agama'           => 'required|string',
             'golongan_pramuka'=> 'required|string',
-            'golongan_darah'  => 'required|string',
+            'golongan_darah'  => 'nullable|string',
             'tempat_lahir'    => 'required|string',
             'tanggal_lahir'   => 'required|string',
             'email'           => 'required|email',

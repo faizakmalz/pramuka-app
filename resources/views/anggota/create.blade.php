@@ -107,7 +107,8 @@
                                     this.openGol = false;
                                 },
                                 get combined() {
-                                    return this.golongan && this.tingkat ? `${this.golongan} - ${this.tingkat}` : '';
+                                    if (!this.golongan) return '';
+                                    return this.tingkat ? `${this.golongan} - ${this.tingkat}` : this.golongan;
                                 }
                             }">
                                 <!-- Golongan -->
