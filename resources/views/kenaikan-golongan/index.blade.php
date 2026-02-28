@@ -108,7 +108,8 @@
                                 this.openGol = false;
                             },
                             get combined() {
-                                return this.golongan && this.tingkat ? `${this.golongan} - ${this.tingkat}` : '';
+                                if (!this.golongan) return '';
+                                return this.tingkat ? `${this.golongan} - ${this.tingkat}` : this.golongan;
                             }
                         }">
                             <label class="block text-gray-600 font-bold mb-2">Golongan Tujuan</label>

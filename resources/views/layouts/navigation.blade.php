@@ -54,7 +54,7 @@
 
         <!-- Dashboard -->
         <div class="mb-2 ml-7 mt-6">
-            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="w-full">
+            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="w-[100px]">
                 {{ __('Dashboard') }}
             </x-nav-link>
         </div>
