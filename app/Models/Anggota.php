@@ -39,7 +39,11 @@ class Anggota extends Model
     public function kenaikanTerbaru(): HasOne
     {
         return $this->hasOne(KenaikanGolongan::class, 'nomor_anggota', 'nomor_anggota')
-            ->whereNotNull('nomor_sertifikat')
-            ->latestOfMany('tanggal_kenaikan');
+        ->latestOfMany('id')
+        ->whereColumn(
+            'kenaikan_golongan.nomor_anggota', 
+            '=', 
+            'anggotas.nomor_anggota'
+        );
     }
 }

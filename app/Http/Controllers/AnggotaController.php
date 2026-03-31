@@ -21,35 +21,57 @@ class AnggotaController extends Controller
 
     public function getAnggotas(Request $request)
     {
-        if ($request->ajax()) {
-            $query = Anggota::query()->select([
-                'nomor_anggota', 
-                'nama', 
-                'nik',
-                'jenis_kelamin',
-                'golongan_darah',
-                'tempat_lahir',
-                'tanggal_lahir',
-                'alamat',
-                'email', 
-                'no_telp', 
-                'golongan_pramuka', 
-                'created_at'
-            ])->with('kenaikanTerbaru');
+      if (!$request->ajax()) return;
 
-            return DataTables::of($query)
-                ->addColumn('sertifikat_link', function($row) {
-                    $kenaikan = $row->kenaikanTerbaru;
-                    if (!$kenaikan) return null;
-                    
-                    return [
-                        'nomor' => $kenaikan->nomor_sertifikat,
-                        'url_show' => route('kenaikan.sertifikat.show', $kenaikan->nomor_sertifikat),
-                        'url_download' => route('kenaikan.sertifikat.download', $kenaikan->nomor_sertifikat)
-                    ];
-                })
-                ->make(true);
-        }
+    // Gunakan query builder yang lebih ringan
+    $query = Anggota::query()
+        // Gunakan Left Join ke KenaikanGolongan yang hanya mengambil record terbaru saja
+        ->leftJoin('kenaikan_golongan as kg1', function($join) {
+            $join->on('anggotas.nomor_anggota', '=', 'kg1.nomor_anggota')
+                 ->whereRaw('kg1.id = (SELECT MAX(id) FROM kenaikan_golongan WHERE nomor_anggota = kg1.nomor_anggota)');
+        })
+        ->select([
+            'anggotas.nomor_anggota', 
+            'anggotas.nama', 
+            'anggotas.nik', 
+            'anggotas.jenis_kelamin',
+            'anggotas.golongan_pramuka',
+            'anggotas.golongan_darah',
+            'anggotas.tempat_lahir',
+            'anggotas.tanggal_lahir',
+            'anggotas.no_telp',
+            'kg1.nomor_sertifikat', 
+        ]);
+
+    return DataTables::of($query)
+        // Tambahkan ini agar DataTables tidak pusing dengan kolom hasil join
+        ->setRowId('nomor_anggota')
+        ->filter(function ($query) use ($request) {
+            if ($request->has('search') && !empty($request->get('search')['value'])) {
+                $keyword = $request->get('search')['value'];
+                // Gunakan prefix tabel 'anggotas.' agar tidak ambiguous
+                $query->where(function($q) use ($keyword) {
+                    $q->where('anggotas.nama', 'like', "%$keyword%")
+                      ->orWhere('anggotas.nomor_anggota', 'like', "%$keyword%")
+                      ->orWhere('anggotas.nik', 'like', "%$keyword%");
+                });
+            }
+            
+            if ($request->filled('golongan_pramuka')) {
+                $query->where('anggotas.golongan_pramuka', $request->golongan_pramuka);
+            }
+        }, true) 
+        ->addColumn('sertifikat_link', function($row) {
+            if (!$row->nomor_sertifikat) return null;
+            
+            return [
+                'nomor' => $row->nomor_sertifikat,
+                'url_show' => route('kenaikan.sertifikat.show', $row->nomor_sertifikat),
+                'url_download' => route('kenaikan.sertifikat.download', $row->nomor_sertifikat)
+            ];
+        })
+        ->rawColumns(['sertifikat_link'])
+        ->make(true);
     }
 
     public function getGolonganPramuka()

@@ -47,7 +47,7 @@ $(function () {
         columns: [
             {
                 data: 'nomor_anggota',
-                name: 'nomor_anggota',
+                name: 'anggotas.nomor_anggota',
                 orderable: false,
                 render: data => `<div class="font-mono text-sm text-gray-600">${String(data) || '-'}</div>`
             },
@@ -84,7 +84,7 @@ $(function () {
             // Gabungkan tempat & tanggal lahir
             {
                 data: null,
-                name: 'lahir',
+                name: 'anggotas.tempat_lahir',
                 orderable: false,
                 render: (data, type, row) => {
                     const tempat = row.tempat_lahir || '-';

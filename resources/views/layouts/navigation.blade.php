@@ -79,6 +79,9 @@
                 <x-nav-link :href="route('kenaikan')" :active="request()->routeIs('kenaikan')" class="w-[120px]">
                     Kenaikan Gol.
                 </x-nav-link>
+                <x-nav-link :href="route('tkk')" :active="request()->routeIs('tkk')" class="w-[120px]">
+                    TKK
+                </x-nav-link>
             </div>
         </div>
 
@@ -100,6 +103,13 @@
                     Buat Event
                 </x-nav-link>
             </div>
+        </div>
+
+        <!-- Settings -->
+        <div class="mt-4 ml-7">
+            <x-nav-link :href="route('settings')" :active="request()->routeIs('settings')" class="w-[100px]">
+                Pengaturan
+            </x-nav-link>
         </div>
 
         <!-- Bottom: Profile & Logout -->

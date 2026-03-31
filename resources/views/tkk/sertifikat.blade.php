@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Sertifikat Kenaikan Golongan</title>
+    <title>Sertifikat TKK</title>
     <style>
         @page {
             size: A4 portrait;
@@ -30,7 +30,7 @@
             overflow: hidden;
         }
 
-        /* --- Decorative frames (absolute, do NOT affect text flow) --- */
+        /* --- Decorative frames --- */
         .frame-outer {
             position: absolute;
             top: 20px; left: 20px; right: 20px; bottom: 20px;
@@ -43,18 +43,37 @@
             border: 1px solid #2d7a2d;
             z-index: 1;
         }
+
+        /* TKK: corner ornament berbeda — diamond shape */
         .corner {
             position: absolute;
             width: 50px;
             height: 50px;
             z-index: 2;
         }
-        .corner-tl { top:20px;    left:20px;   border-top:3px solid #C5922B; border-left:3px solid #C5922B; }
-        .corner-tr { top:20px;    right:20px;  border-top:3px solid #C5922B; border-right:3px solid #C5922B; }
-        .corner-bl { bottom:20px; left:20px;   border-bottom:3px solid #C5922B; border-left:3px solid #C5922B; }
-        .corner-br { bottom:20px; right:20px;  border-bottom:3px solid #C5922B; border-right:3px solid #C5922B; }
+        .corner-tl { top: 20px;    left: 20px;   border-top: 3px solid #C5922B; border-left: 3px solid #C5922B; }
+        .corner-tr { top: 20px;    right: 20px;  border-top: 3px solid #C5922B; border-right: 3px solid #C5922B; }
+        .corner-bl { bottom: 20px; left: 20px;   border-bottom: 3px solid #C5922B; border-left: 3px solid #C5922B; }
+        .corner-br { bottom: 20px; right: 20px;  border-bottom: 3px solid #C5922B; border-right: 3px solid #C5922B; }
 
-        /* --- Content: normal flow, padded to sit inside inner frame --- */
+        /* Badge TKK di pojok — khas pembeda dari kenaikan golongan */
+        .badge-tkk {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 62px;
+            height: 62px;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .badge-tkk svg {
+            width: 62px;
+            height: 62px;
+        }
+
+        /* --- Content --- */
         .content {
             position: relative;
             z-index: 5;
@@ -137,11 +156,12 @@
             margin-top: 3px;
         }
 
+        /* TKK: divider dua warna — hijau + emas */
         .divider {
             width: 55%;
-            height: 2px;
-            background: #2d7a2d;
             margin: 5px auto;
+            height: 4px;
+            background: linear-gradient(to right, #1a5c1a 40%, #C5922B 40%, #C5922B 60%, #1a5c1a 60%);
         }
 
         .title-nomor {
@@ -154,12 +174,13 @@
             font-family: 'Courier New', monospace;
         }
 
+        /* TKK: ornamen berbeda — pakai simbol TKK */
         .ornament {
             text-align: center;
             color: #C5922B;
-            font-size: 11pt;
+            font-size: 10pt;
             margin: 2mm 0 4mm 0;
-            letter-spacing: 4px;
+            letter-spacing: 6px;
         }
 
         /* ===================== BODY ===================== */
@@ -206,22 +227,27 @@
             word-wrap: break-word;
         }
 
-        .data-table .lbl { 
-            width: 40px; 
+        .data-table .lbl {
+            width: 40px;
             color: #444;
             text-align: left;
         }
-        .data-table .sep { 
-            width: 18px; 
+        .data-table .sep {
+            width: 18px;
             text-align: center;
         }
-        .data-table .val { 
+        .data-table .val {
             color: #111;
             text-align: left;
         }
-        .data-table .val.green { 
-            font-weight: bold; 
+        .data-table .val.green {
+            font-weight: bold;
             color: #1a5c1a;
+        }
+        /* TKK khusus: nilai TKK warna emas */
+        .data-table .val.gold {
+            font-weight: bold;
+            color: #C5922B;
         }
 
         /* ===================== PARAGRAPHS ===================== */
@@ -237,6 +263,7 @@
 
         .achievement-text .bold { font-weight: bold; text-transform: uppercase; }
         .achievement-text .green { font-weight: bold; color: #1a5c1a; }
+        .achievement-text .gold { font-weight: bold; color: #C5922B; }
 
         .closing-text {
             font-size: 8pt;
@@ -314,7 +341,7 @@
 <body>
 <div class="page">
 
-    <!-- Decorative border frames (absolute — outside normal flow) -->
+    <!-- Decorative border frames -->
     <div class="frame-outer"></div>
     <div class="frame-inner"></div>
     <div class="corner corner-tl"></div>
@@ -322,7 +349,7 @@
     <div class="corner corner-bl"></div>
     <div class="corner corner-br"></div>
 
-    <!-- All content in normal flow, padded inside the frame -->
+    <!-- All content in normal flow -->
     <div class="content">
 
         <!-- HEADER -->
@@ -337,11 +364,11 @@
                         $logoPath = storage_path('app/public/logo-pramukaaa.png');
                     }
                 @endphp
-                
+
                 @if(file_exists($logoPath))
                     <img src="{{ $logoPath }}" alt="Logo Pramuka">
                 @else
-                    <div style="width: 65px; height: 65px; border: 2px solid #1a5c1a; border-radius: 50%; display: inline-block; line-height: 65px; background: #f0f9f0; font-size: 8pt; color: #1a5c1a; font-weight: bold;">LOGO<br>PRAMUKA</div>
+                    <div style="width:65px;height:65px;border:2px solid #1a5c1a;border-radius:50%;display:inline-block;line-height:65px;background:#f0f9f0;font-size:8pt;color:#1a5c1a;font-weight:bold;">LOGO<br>PRAMUKA</div>
                 @endif
             </div>
             <div class="header-text">
@@ -355,12 +382,12 @@
         <!-- TITLE -->
         <div class="title-section">
             <div class="title-main">SERTIFIKAT</div>
-            <div class="title-sub">Kenaikan Golongan Pramuka</div>
+            <div class="title-sub">Tanda Kecakapan Khusus (TKK)</div>
             <div class="divider"></div>
-            <div class="title-nomor">Nomor: <strong>{{ $kenaikan->nomor_sertifikat }}</strong></div>
+            <div class="title-nomor">Nomor: <strong>{{ $tkk->nomor_sertifikat }}</strong></div>
         </div>
 
-        <div class="ornament">* * *</div>
+        <div class="ornament">&#9670; &mdash; &#9670; &mdash; &#9670;</div>
 
         <!-- BODY -->
         <div class="body-section">
@@ -370,44 +397,65 @@
                 dengan ini menerangkan bahwa:
             </div>
 
-            <div class="member-name">{{ $kenaikan->anggota->nama }}</div>
+            <div class="member-name">{{ $tkk->anggota->nama }}</div>
 
             <table class="data-table">
                 <tr>
                     <td class="lbl">Tempat / Tanggal Lahir</td>
                     <td class="sep">:</td>
                     <td class="val">
-                        {{ $kenaikan->anggota->tempat_lahir }},
-                        {{ \Carbon\Carbon::parse($kenaikan->anggota->tanggal_lahir)->translatedFormat('d F Y') }}
+                        {{ $tkk->anggota->tempat_lahir }},
+                        {{ \Carbon\Carbon::parse($tkk->anggota->tanggal_lahir)->translatedFormat('d F Y') }}
                     </td>
                 </tr>
                 <tr>
                     <td class="lbl">Nomor Anggota</td>
                     <td class="sep">:</td>
-                    <td class="val">{{ $kenaikan->anggota->nomor_anggota }}</td>
+                    <td class="val">{{ $tkk->anggota->nomor_anggota }}</td>
                 </tr>
                 <tr>
                     <td class="lbl">Golongan Pramuka</td>
                     <td class="sep">:</td>
-                    <td class="val green">{{ $kenaikan->golongan_tujuan }}</td>
+                    <td class="val green">{{ $tkk->golongan_sekarang }}</td>
+                </tr>
+                <tr>
+                    <td class="lbl">Tanda Kecakapan Khusus</td>
+                    <td class="sep">:</td>
+                    <td class="val gold">
+                        {{ $tkk->nama_tkk }}
+                        @if($tkk->tingkat)
+                            <span style="font-weight:normal;color:#888;font-size:8pt;">({{ $tkk->tingkat }})</span>
+                        @endif
+                    </td>
                 </tr>
             </table>
 
             <div class="achievement-text">
-                Telah menyelesaikan Syarat Kecakapan Umum (SKU) Pramuka
-                <span class="bold">{{ strtoupper($kenaikan->golongan_tujuan) }}</span>
+                Telah menyelesaikan Syarat Kecakapan Khusus (SKK) bidang
+                <span class="gold">{{ strtoupper($tkk->nama_tkk) }}</span>
+                @if($tkk->tingkat)
+                    tingkat <span class="bold">{{ strtoupper($tkk->tingkat) }}</span>
+                @endif
                 pada hari, tanggal
-                <span class="green">{{ \Carbon\Carbon::parse($kenaikan->tanggal_kenaikan)->translatedFormat('l, d F Y') }}</span>
-                dan dinyatakan <span class="bold">NAIK GOLONGAN</span> dari
-                <span class="green">{{ strtoupper($kenaikan->golongan_awal) }}</span> menjadi
-                <span class="green">{{ strtoupper($kenaikan->golongan_tujuan) }}</span>
-                dalam Gerakan Pramuka Indonesia, serta berhak memakai Tanda Kecakapan Umum sesuai golongan yang dicapai.
+                <span class="green">{{ \Carbon\Carbon::parse($tkk->tanggal_penetapan)->translatedFormat('l, d F Y') }}</span>
+                dan telah dinyatakan <span class="bold">LULUS</span> ujian TKK
+                dengan penguji <strong>{{ $tkk->nama_penguji }}</strong>
+                @if($tkk->penguji_is_pembina)
+                    <span style="font-size:8.5pt;color:#666;">(Pembina Pramuka)</span>
+                @endif,
+                serta berhak memakai Tanda Kecakapan Khusus sesuai bidang yang dicapai.
             </div>
+
+            @if($tkk->catatan)
+            <div class="achievement-text" style="background:#fffbf2;border-left:3px solid #C5922B;padding:4px 8px;margin-bottom:6px;">
+                <span style="font-style:italic;color:#888;">Catatan:</span> {{ $tkk->catatan }}
+            </div>
+            @endif
 
             <div class="closing-text">
                 Dengan harapan semoga senantiasa meningkatkan keterampilan dan pengetahuannya
-                berdasarkan Tri Satya dan Dasa Darma Pramuka, serta terus berprestasi
-                demi kemajuan Gerakan Pramuka Indonesia.
+                dalam bidang ini, berdasarkan Tri Satya dan Dasa Darma Pramuka,
+                serta terus berprestasi demi kemajuan Gerakan Pramuka Indonesia.
             </div>
 
         </div>
@@ -425,17 +473,18 @@
                     </td>
                     <td class="sig-right">
                         <div class="sig-place-date">
-                            Ditetapkan di: <strong>{{ $kenaikan->tempat_penetapan ?? 'Surabaya' }}</strong>
+                            Ditetapkan di: <strong>{{ $tkk->tempat_penetapan ?? 'Surabaya' }}</strong>
                         </div>
                         <div class="sig-place-date">
-                            Pada Tanggal: <strong>{{ \Carbon\Carbon::parse($kenaikan->tanggal_kenaikan)->translatedFormat('d F Y') }}</strong>
+                            Pada Tanggal: <strong>{{ \Carbon\Carbon::parse($tkk->tanggal_penetapan)->translatedFormat('d F Y') }}</strong>
                         </div>
                         <div class="sig-role">Ketua Gugus Depan,</div>
+                        @php $ketua = $settings->getKetuaPembina(); @endphp
                         <div>
-                            <span class="sig-name">{{ $kenaikan->nama_pembina ?? 'Drs. Bambang Sudirman, M.Pd.' }}</span>
+                            <span class="sig-name">{{ $ketua['nama'] ?? 'Ketua Pembina' }}</span>
                         </div>
-                        @if($kenaikan->nip_pembina)
-                            <div class="sig-nip">NIP. {{ $kenaikan->nip_pembina }}</div>
+                        @if(!empty($ketua['nip']))
+                            <div class="sig-nip">NIP. {{ $ketua['nip'] }}</div>
                         @endif
                         <div class="sig-nip">Pembina Pramuka</div>
                     </td>

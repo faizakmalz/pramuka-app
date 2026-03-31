@@ -5,26 +5,29 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class KenaikanGolongan extends Model
+class Tkk extends Model
 {
     use HasFactory;
 
-    protected $table = 'kenaikan_golongan';
+    protected $table = 'tkks';
 
     protected $fillable = [
         'nomor_anggota',
-        'golongan_awal',
-        'golongan_tujuan',
-        'tanggal_kenaikan',
-        'tempat_penetapan',  // ✅ KONSISTEN dengan database
-        'nama_pembina',
-        'nip_pembina',
+        'golongan_sekarang',
+        'nama_tkk',
+        'tingkat',
+        'nama_penguji',
+        'penguji_is_pembina',
         'nomor_sertifikat',
+        'tanggal_penetapan',
+        'tempat_penetapan',
         'catatan',
     ];
 
     protected $casts = [
-        'tanggal_kenaikan' => 'date',
+        'tanggal_penetapan' => 'date',
+        'penguji_is_pembina' => 'boolean',
+        'nomor_anggota' => 'integer',
     ];
 
     public function anggota()
@@ -32,10 +35,14 @@ class KenaikanGolongan extends Model
         return $this->belongsTo(Anggota::class, 'nomor_anggota', 'nomor_anggota');
     }
 
+    /**
+     * Generate nomor sertifikat otomatis
+     * Format: TKK-{YEAR}-{4 digit urutan}
+     */
     public static function generateNomorSertifikat(): string
     {
         $year = now()->year;
-        $prefix = "SERT-{$year}-";
+        $prefix = "TKK-{$year}-";
 
         $last = self::where('nomor_sertifikat', 'like', "{$prefix}%")
             ->orderByDesc('nomor_sertifikat')

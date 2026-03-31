@@ -192,7 +192,7 @@
 
         /* ===================== DATA TABLE ===================== */
         .data-table {
-            width: 400px;
+            width: 702px;
             border-collapse: collapse;
             table-layout: fixed;
             margin-bottom: 8px;
@@ -207,7 +207,7 @@
         }
 
         .data-table .lbl { 
-            width: 40px; 
+            width: 140px; 
             color: #444;
             text-align: left;
         }
@@ -329,12 +329,12 @@
         <div class="header">
             <div class="header-logo">
                 @php
-                    $logoPath = public_path('storage/logo-pramukaaa.png');
+                    $logoPath = public_path('storage/logo-pramukaa.png');
                     if (!file_exists($logoPath)) {
-                        $logoPath = public_path('logo-pramukaaa.png');
+                        $logoPath = public_path('logo-pramukaa.png');
                     }
                     if (!file_exists($logoPath)) {
-                        $logoPath = storage_path('app/public/logo-pramukaaa.png');
+                        $logoPath = storage_path('app/public/logo-pramukaa.png');
                     }
                 @endphp
                 

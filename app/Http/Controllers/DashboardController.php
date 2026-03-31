@@ -5,15 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\Anggota;
 use App\Models\Event;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
 class DashboardController extends Controller
 {
     //
-    public function index()
-    {
-        return view('dashboard');
-    }
+    // public function index()
+    // {
+    //     return view('dashboard');
+    // }
+
+    public function index() {
+    dd('Masuk Controller');
+}
 
     public function anggotaData(Request $request)
     {
@@ -55,11 +60,14 @@ class DashboardController extends Controller
 
     public function dashboardEvents()
     {
-        $events = \DB::table('events')->select('event', 'tanggal_awal', 'tanggal_akhir', 'lokasi')->get();
+       $events = DB::table('events')
+        ->select('event', 'lokasi', 'tanggal_awal', 'tanggal_akhir')
+        ->get();
 
         $formatted = $events->map(function ($event) {
-            $start = \Carbon\Carbon::createFromFormat('d-m-Y', $event->tanggal_awal)->format('Y-m-d');
-            $end = \Carbon\Carbon::createFromFormat('d-m-Y', $event->tanggal_akhir)->format('Y-m-d');
+            // Cukup ubah string dikit, jangan buat objek Carbon kalau gak perlu
+            $start = date('Y-m-d', strtotime($event->tanggal_awal));
+            $end = date('Y-m-d', strtotime($event->tanggal_akhir));
 
             return [
                 'title' => $event->event . ' (' . $event->lokasi . ')',
