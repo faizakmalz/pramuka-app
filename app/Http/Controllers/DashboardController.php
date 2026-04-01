@@ -10,15 +10,11 @@ use Yajra\DataTables\Facades\DataTables;
 
 class DashboardController extends Controller
 {
-    //
-    // public function index()
-    // {
-    //     return view('dashboard');
-    // }
-
-    public function index() {
-    dd('Masuk Controller');
-}
+    
+    public function index()
+    {
+        return view('dashboard');
+    }
 
     public function anggotaData(Request $request)
     {

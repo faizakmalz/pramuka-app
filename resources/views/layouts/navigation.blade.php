@@ -3,17 +3,18 @@
 
     <!-- ===== TOP BAR (Mobile only) ===== -->
     <div class="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200 shadow-sm sm:hidden">
-        <a href="{{ route('dashboard') }}">
-            <img src="https://awsimages.detik.net.id/community/media/visual/2022/08/04/siapa-pencetus-lambang-tunas-kelapa-ini-profil-dan-sejarahnya_11.png?w=1200"
-                 alt="Logo" class="w-10 h-10 mr-3 object-contain">
-        </a>
-        <span class="text-sm font-bold text-[#610a08]">Pramuka Management</span>
-        <!-- Hamburger -->
         <button @click="sidebarOpen = true" class="p-2 rounded-md text-gray-500 hover:bg-gray-100 transition">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
         </button>
+        <span class="text-sm font-bold text-[#610a08]">Pramuka Management</span>
+        <!-- Hamburger -->
+        
+        <a href="{{ route('dashboard') }}">
+            <img src="https://awsimages.detik.net.id/community/media/visual/2022/08/04/siapa-pencetus-lambang-tunas-kelapa-ini-profil-dan-sejarahnya_11.png?w=1200"
+                 alt="Logo" class="w-10 h-10 mr-3 object-contain">
+        </a>
     </div>
 
     <!-- ===== OVERLAY (Mobile) ===== -->
@@ -33,7 +34,7 @@
     <nav x-data="{ openAnggota: true, openEvent: true }"
          :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
          class="fixed top-0 left-0 z-50 h-screen w-72 bg-white border-r border-gray-100 shadow-md
-                flex flex-col py-8 pl-14 pr-8 overflow-y-auto
+                flex flex-col py-2 md:py-8 pl-14 pr-8 overflow-y-auto
                 transform transition-transform duration-200 ease-in-out
                 sm:translate-x-0">
 
@@ -53,7 +54,7 @@
         </div>
 
         <!-- Dashboard -->
-        <div class="mb-2 ml-7 mt-6">
+        <div class="mb-2 ml-7 md:mt-6">
             <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="w-[100px]">
                 {{ __('Dashboard') }}
             </x-nav-link>
@@ -106,7 +107,7 @@
         </div>
 
         <!-- Settings -->
-        <div class="mt-4 ml-7">
+        <div class="mt-4 ml-3">
             <x-nav-link :href="route('settings')" :active="request()->routeIs('settings')" class="w-[100px]">
                 Pengaturan
             </x-nav-link>

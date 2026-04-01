@@ -4,7 +4,7 @@
             {{ __('Dashboard') }}
         </h2>
     </x-slot>
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-4 mx-auto px-6 md:px-0">
         <div class="pt-12">            
             <div class="flex flex-col gap-4 mx-auto sm:px-6 lg:px-8">
                 <div class="flex flex-col gap-4">
@@ -253,7 +253,7 @@
                     const color = colors[gol];
 
                     const card = document.createElement('div');
-                    card.className = "flex flex-col flex-1 min-w-[120px] mt-2 justify-center p-6 sm:rounded-2xl shadow-md hover:shadow-lg transition transform hover:-translate-y-1";
+                    card.className = "flex flex-col flex-1 min-w-[120px] mt-2 justify-center p-6 rounded-2xl shadow-md hover:shadow-lg transition transform hover:-translate-y-1";
                     card.style.backgroundColor = color.bg;
                     card.style.color = color.text;
 

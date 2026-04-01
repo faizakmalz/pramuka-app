@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
 
-    <div class="pt-6 flex flex-col">
+    <div class="pt-6 flex flex-col px-4 md:px-0">
         <div class="sm:px-6 lg:px-8 mb-10">
             <div class="pl-2 h-32 flex justify-between items-center">
                 <div>

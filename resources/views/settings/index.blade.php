@@ -52,10 +52,30 @@
                         <!-- Nomor Gugus Depan -->
                         <div>
                             <label class="block text-gray-600 font-bold mb-2">Nomor Gugus Depan</label>
-                            <input type="text" name="nomor_gugus_depan"
-                                class="w-full border border-gray-400 rounded px-3 py-2 text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-[#610a08]"
-                                value="{{ old('nomor_gugus_depan', $settings->nomor_gugus_depan) }}"
-                                placeholder="Contoh: 11.021-11.022">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-gray-600 text-sm mb-1">
+                                        Putra (Pa)
+                                    </label>
+                                    <input type="text" name="nomor_gugus_depan_pa"
+                                        class="w-full border border-gray-400 rounded px-3 py-2 text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-[#610a08]"
+                                        value="{{ old('nomor_gugus_depan_pa', $nomorPa) }}"
+                                        placeholder="Contoh: 11.021">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-600 text-sm mb-1">
+                                        Putri (Pi)
+                                    </label>
+                                    <input type="text" name="nomor_gugus_depan_pi"
+                                        class="w-full border border-gray-400 rounded px-3 py-2 text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-[#610a08]"
+                                        value="{{ old('nomor_gugus_depan_pi', $nomorPi) }}"
+                                        placeholder="Contoh: 11.022">
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-1">
+                                Akan disimpan sebagai: 
+                                <span class="font-mono text-gray-600">{{ $nomorPa }}-{{ $nomorPi }}</span>
+                            </p>
                         </div>
 
                         <!-- Alamat -->
