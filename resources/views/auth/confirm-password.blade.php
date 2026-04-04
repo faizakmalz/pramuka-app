@@ -1,6 +1,6 @@
 <div class="flex justify-center">
-    <div class="flex-1 bg-[url('~/bg-auth.svg')] bg-no-repeat bg-cover flex justify-center items-center">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/City_of_Surabaya_Logo.svg/1200px-City_of_Surabaya_Logo.svg.png" alt="" class="w-64">
+    <div class="flex-1 bg-no-repeat bg-cover flex justify-center items-center" style="background-image: url('{{ asset('bg-auth.png') }}');">
+        <img src="https://awsimages.detik.net.id/community/media/visual/2022/08/04/siapa-pencetus-lambang-tunas-kelapa-ini-profil-dan-sejarahnya_11.png?w=1200" alt="" class="w-48">
     </div>
     <div  class="flex-1 bg-blue-500">
         <x-guest-layout>

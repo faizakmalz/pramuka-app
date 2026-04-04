@@ -5,8 +5,8 @@
     <div  class="flex-1 bg-blue-500">
         <x-guest-layout>
             <div class="text-center mb-4">
-                <h2 class="font-bold text-[24px]">SIMS</h2>
-                <h3 class="font-semibold">Welcome</h3>
+                <h2 class="font-bold text-[30px]">SIMP</h2>
+                <h3 class="font-semibold">Sistem Informasi Pramuka</h3>
                 <div class="text-gray-600">
                     Welcome Back! Please enter your details
                 </div>
