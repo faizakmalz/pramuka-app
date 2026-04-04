@@ -104,7 +104,7 @@ class AnggotaController extends Controller
             'tanggal_lahir'   => 'required|string',
             'email'           => 'required|email',
             'alamat'          => 'required|string',
-            'no_telp'         => 'nullable|string|max:20',
+            'no_telp'         => 'required|string|max:20',
         ]);
 
         // ✅ 1. SIMPAN ANGGOTA DULU (ini prioritas utama)
